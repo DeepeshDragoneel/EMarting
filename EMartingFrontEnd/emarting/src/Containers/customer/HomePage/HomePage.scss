@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+.welcomePageBody{
+    padding-bottom: 20px;
+    max-width: 100%;
+    height: max-content;
+    min-height: 87.6vh;
+    background-color: #545454;
+    .welcomePageHeading{
+        font-family: 'Orbitron', sans-serif;
+        color: white;
+        font-size: 4rem;
+        text-shadow: "-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #ffff, 1px 1px 0 #ffff";
+    }
+    .welcomePageTagLine{
+        font-family: 'Orbitron', sans-serif;
+        color: white;
+        font-size: 1rem;
+        text-shadow: "-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #ffff, 1px 1px 0 #ffff";
+        margin-bottom: "2rem";
+    }
+    .welcomePageIllustration{
+        max-width: 30%;
+        max-height: 40%;
+    }
+}
+
+.shopButtonHomePage{
+    &:hover {
+        color: #000 !important;
+    }
+}

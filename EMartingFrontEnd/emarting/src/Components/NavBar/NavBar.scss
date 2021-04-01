@@ -1,0 +1,33 @@
+.navbar{
+    padding: 0;
+}
+.container-fluid{
+    align-content: center;
+    justify-content: center;
+    color: "white";
+    padding:10px;
+}
+
+.navbar-nav{
+    margin-left: auto;
+    .nav-item{
+        margin: 5px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        justify-content: center !important;
+        align-content: center !important;
+        .nav-link{
+            color: #6cd3f5;
+            align-self: center !important;
+            cursor: pointer !important;
+        }
+        .nav-link:hover{
+            color: rgb(240, 140, 190) !important;
+        }
+
+    }
+}
+
+a.linkIsActive{
+    color: hotpink !important;
+}

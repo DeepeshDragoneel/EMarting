@@ -1,0 +1,8 @@
+.productDetailesImage{
+    width: 40%;
+    align-self: center;
+    margin: 3rem auto;
+    @media screen and (max-width: 919px){
+        width: 60%;
+    }
+}
