@@ -168,7 +168,7 @@ exports.getProductInfo = (req, res, next)=>{
     })
 }
 
-exports.addCartProduct = (req, res, next) => {
+exports.addCartProduct = async(req, res, next) => {
     try{
         console.log("ADDING PRODUCT TO CART");
         //console.log(req.body);
@@ -178,7 +178,9 @@ exports.addCartProduct = (req, res, next) => {
         //     console.log(req);
         // }
         // Cart.addProduct(req.body.product);
-        req.body.user.addToCart(req.body.product);
+        const user = await User.findById(req.params.id);
+        console.log(user);
+        user.addToCart(req.body.product);
         res.status(200).send("Successfully added to cart!");
     }
     catch(error){
@@ -186,9 +188,9 @@ exports.addCartProduct = (req, res, next) => {
     }
 }
 
-exports.getCartProducts = (req, res, next) => {
+exports.getCartProducts = async(req, res, next) => {
+    console.log("FETCHING CART PRODUCTS");
     try{
-        console.log("FETCHING CART PRODUCTS");
         /* Cart.getCartItems( (func)=> {
             Product.fetchAll((items) => {
                 const cart=[];
@@ -201,17 +203,21 @@ exports.getCartProducts = (req, res, next) => {
                 res.status(200).json(cart);
             })
         }) */
-        req.body.user.populate("cart.items.productId").execPopulate()
+        console.log("----------------------");
+        console.log(req.params.id);
+        console.log("----------------------");
+        const user = await User.findById(req.params.id);
+        user.populate("cart.items.productId").execPopulate()
         .then(user => {
-            //console.log(user.cart.items);
-            res.status(202).json(user.cart.items);
+            console.log(user.cart.items);
+            res.status(202).send(user.cart.items);
         })
         .catch(error => {
             console.log(error);
         })
     }
     catch(error){
-        res.status(400).send("Error Getting cart item!");
+        res.send("Error Getting cart item!");
     }
 }
 

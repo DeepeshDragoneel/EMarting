@@ -11,19 +11,30 @@ import {Switch, Route} from 'react-router-dom';
 import NavBar from './Components/NavBar/NavBar';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import LoginPage from './Containers/customer/LoginPage/LoginPage';
+import SignUpPage from "./Containers/customer/SignUpPage/SignUpPage";
 
 function App() {
   return (
     <Provider store={store}>
       <div className="App">
-        <NavBar/>
+        <NavBar />
         <Switch>
-          <Route exact path="/" component={HomePage}></Route>
+          {/* <Route exact path="/" component={HomePage}></Route> */}
+          <Route exact path="/" component={LoginPage}></Route>
           <Route exact path="/home" component={HomePage}></Route>
           <Route exact path="/admin/addProduct" component={AddProduct}></Route>
-          <Route exact path="/admin/editProduct/:id" component={EditProduct}></Route>
+          <Route
+            exact
+            path="/admin/editProduct/:id"
+            component={EditProduct}
+          ></Route>
           <Route exact path="/shop" component={Shop}></Route>
-          <Route exact path="/shop/detailes/:id" component={ProductDetailes}></Route>
+          <Route
+            exact
+            path="/shop/detailes/:id"
+            component={ProductDetailes}
+          ></Route>
           <Route exact path="/cart" component={Cart}></Route>
           <Route exact path="/admin/shop" component={AdminProducts}></Route>
           <Route component={ErrorPage}></Route>

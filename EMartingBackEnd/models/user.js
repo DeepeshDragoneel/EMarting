@@ -1,14 +1,33 @@
 const database = require('../util/database');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
     username: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        validate(value){
+            if(value.length<4){
+                throw new Error("Enter Valid Username");
+            }
+        }
     },
     email: {
+        type: String,
+        required: true,
+        unique: true,
+        validate(value){
+            if(!validator.isEmail(value)){
+                throw new Error("Enter a valid email");
+            }
+        }
+    },
+    password: {
         type: String,
         required: true
     },
@@ -26,8 +45,42 @@ const UserSchema = new Schema({
                 }
             }
         ]
-    }
+    },
+    tokens: [{
+        token:{
+            type: String,
+            required: true
+        }
+    }]
 })
+
+/* UserSchema.pre("save", async function(next){
+    try{
+        console.log("this preSave: ",this);
+        this.password = await bcrypt.hash(this.password, 10);
+        console.log("this.password: ",this.password);
+    }
+    catch(error){
+        console.log(error);
+    }
+    next();
+}) */
+
+UserSchema.methods.authTokenGeneration = async function(){
+    try{
+        console.log("JWT THIS: ", this);
+        const userToken = jwt.sign({_id: this._id.toString()}, process.env.SECRET_KEY);
+        this.tokens.push({
+          token: userToken,
+        });
+        console.log(this.tokens);
+        await this.save();
+        return userToken;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
 
 UserSchema.methods.addToCart = function(product){
     console.log("In User cart function");

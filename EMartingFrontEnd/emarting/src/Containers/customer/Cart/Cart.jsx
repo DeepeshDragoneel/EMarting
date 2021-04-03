@@ -28,11 +28,53 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Cart = () => {
+  const [isAuthorized, setisAuthorized] = useState(false);
+  const [userId, setuserId] = useState();
     const classes = useStyles();
     const [deleteOptionClicked, setdeleteOptionClicked] = useState(false);
     const [cartQuantity, setcartQuantity] = useState();
     const [cartProducts, setcartProducts] = useState([]);
     console.log(cartProducts);
+
+    const checkAuthorization = async(token) => {
+      try {
+        const result = await axios({
+          method: "POST",
+          url: "http://localhost:8000/auth",
+          headers: {
+            "content-type": "application/json",
+            accept: "application/json",
+          },
+          data: JSON.stringify({
+            "token": token
+          })
+        });
+        console.log(result.data._id);
+        setuserId(result.data._id);
+        return result.data._id;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    const sendUserData = async(id) => {
+      try {
+        const result = await axios({
+          method: "POST",
+          url: "http://localhost:8000/UserAuth",
+          headers: {
+            "content-type": "application/json",
+            accept: "application/json",
+          },
+          data: JSON.stringify({
+            userId: id,
+          }),
+        });
+        console.log(result.data._id);
+        setuserId(result.data._id);
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     const orderCartItems = async() => {
       try{
@@ -74,7 +116,10 @@ const Cart = () => {
 
     const getCartItems = async() =>{
         try{
-            const result = await axios.get("http://localhost:8000/cart");
+          const token = localStorage.getItem("JWT");
+          const id = await checkAuthorization(token);
+          console.log("useeffect: ",id);
+            const result = await axios.get(`http://localhost:8000/cart/${id}`);
             console.log(result.data);
             setcartProducts(result.data);
             console.log(cartProducts);
@@ -92,7 +137,7 @@ const Cart = () => {
     }
 
     useEffect(() => {
-        getCartItems();
+      getCartItems()
     }, [deleteOptionClicked])
     return (
       <div>

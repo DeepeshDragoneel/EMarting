@@ -1,0 +1,48 @@
+.loginFromDivMain{
+    max-width: max-content;
+    max-height: min-content;
+    border: black 2px solid;
+    padding: 2rem 5rem 3rem 5rem;
+    background-color: #caf7e3;
+    margin: auto;
+    border-radius: 1rem;
+    box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+    .form-floating{
+        max-width: min-content;
+        .form-control{
+            width: 30vw;
+        }
+    }
+    @media screen and (max-width: 740px){
+        width: 95vw;
+        padding: 2rem 1rem 3rem 1rem;
+    }
+}
+
+.loginForm{
+    width: min-content !important;
+    margin: auto;
+    @media screen and (max-width: 740px){
+        width: 100vw;
+    }
+}
+
+#floatingInput{
+    background-color: #edffec;
+    color: black;
+    width: 30vw;
+    font-weight: 700;
+    @media screen and (max-width: 740px){
+        width: 70vw !important;
+    }
+}
+
+#floatingPassword{
+    background-color: #edffec;
+    color: black;
+    width: 30vw;
+    font-weight: 700;
+    @media screen and (max-width: 740px){
+        width: 70vw !important;
+    }
+}

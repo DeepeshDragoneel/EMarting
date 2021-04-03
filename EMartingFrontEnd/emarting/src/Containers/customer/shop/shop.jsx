@@ -27,10 +27,31 @@ const Shop = () => {
     const [Products, setProducts] = useState([]);
 
     const classes = useStyles();
+
+    const checkAuthorization = async (token) => {
+      try {
+        const result = await axios({
+          method: "POST",
+          url: "http://localhost:8000/auth",
+          headers: {
+            "content-type": "application/json",
+            accept: "application/json",
+          },
+          data: JSON.stringify({
+            token: token,
+          }),
+        });
+        console.log(result.data._id);
+        return result.data._id;
+      } catch (error) {
+        console.log(error);
+      }
+    };
     
     const getProducts = async() => {
         try{
-            const temp = await axios.get("http://localhost:8000/shop");
+            
+            const temp = await axios.get(`http://localhost:8000/shop/`);
             console.log(temp.data);
             setProducts(temp.data);
         }
@@ -41,9 +62,11 @@ const Shop = () => {
 
     const addToCartProduct = async(product) => {
         try{
+          const token = localStorage.getItem("JWT");
+          const id = await checkAuthorization(token);
             const result = await axios({
                 method: "post",
-                url: "http://localhost:8000/cart",
+                url: `http://localhost:8000/cart/${id}`,
                 headers:{
                     "content-type": "application/json",
                     "accept":"application/json",
