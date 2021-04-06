@@ -108,8 +108,9 @@ UserSchema.methods.addToCart = function(product){
 }
 
 UserSchema.methods.deleteCartProduct = function(product){
+    console.log("DELETECART: ",product._id);
     const newCartItems = this.cart.items.filter(cItem => 
-        cItem.productId.toString() !== product._id.toString()
+        (cItem.productId !== null)&&(cItem.productId.toString() !== product._id.toString()) 
     )
     this.cart.items = newCartItems;
     return this.save();

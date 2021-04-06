@@ -95,9 +95,11 @@ const Cart = () => {
 
     const deleteCartItem = async(item) =>{
         try{
+            const token = localStorage.getItem("JWT");
+            const id = await checkAuthorization(token);
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/cart/delete",
+                url: `http://localhost:8000/cart/delete/${id}`,
                 headers:{
                     "content-type": "application/json",
                     "accept":"application/json"
@@ -172,7 +174,7 @@ const Cart = () => {
                 {ele.productId!==null?(
                   <>
                   <Link to={`/shop/detailes/${ele.productId._id}`}>
-                    <img src={ele.productId.imageURL} alt="product"></img>
+                    <img src={ele.productId.image} alt="product"></img>
                   </Link>
                   <div className="cartProductDetailes">
                     <div className="cartProductTitlePrice">

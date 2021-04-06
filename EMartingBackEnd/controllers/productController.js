@@ -196,6 +196,13 @@ exports.getCartProducts = async(req, res, next) => {
         user.populate("cart.items.productId").execPopulate()
         .then(user => {
             console.log(user.cart.items);
+            user.cart.items.forEach(function(item){
+                console.log(item);
+                if(item.productId === null){
+                    console.log("INSIDEIF: ",item);
+                    user.deleteCartProduct(item);
+                }
+            })
             res.status(202).send(user.cart.items);
         })
         .catch(error => {
@@ -207,11 +214,13 @@ exports.getCartProducts = async(req, res, next) => {
     }
 }
 
-exports.deleteCartItem = (req,res,next) => {
+exports.deleteCartItem = async(req,res,next) => {
     try{
-        console.log("DELETING THE CART ITEM");
         // Cart.delete(req.body.data);
-        req.body.user.deleteCartProduct(req.body.data);
+        console.log("DELETING THE CART ITEM");
+        const user = await User.findById(req.params.id);
+        //console.log("DeleteCartItems: ",user);
+        user.deleteCartProduct(req.body.data);
         res.status(202).send("Delected the item from cart!");
     }
     catch(error){
@@ -223,7 +232,7 @@ exports.postOrder = (req, res, next)=>{
     try {
       console.log("POSTING ORDER");
       console.log("ORDER POSTED");
-      console.log(req.body);
+      //console.log(req.body);
       req.body.user
         .populate("cart.items.productId")
         .execPopulate()
