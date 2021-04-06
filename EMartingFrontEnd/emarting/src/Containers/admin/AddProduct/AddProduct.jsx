@@ -107,16 +107,6 @@ const AddProduct = (props) => {
             console.log(e);
         }
     }
-    
-    const upload = () => {
-        let data = new FormData();
-        data.append("title", productDetails.title);
-        data.append("imageURL", productDetails.imageURL);
-        data.append("price", productDetails.price);
-        data.append("desc", productDetails.desc);
-        setformData(data);
-        console.log(formData);
-    }
 
     const handleSubmit = async(e) => {
         e.preventDefault();

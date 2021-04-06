@@ -25,9 +25,8 @@ const EditProduct = (props) => {
     const [productDetails, setproductDetails] = useState({
         id: "",
         title: "",
-        imageURL: "",
         price: "",
-        description: "",
+        desc: "",
     });
     const productDetailsHandler = (event) =>{
         // console.log("hello");
@@ -38,10 +37,10 @@ const EditProduct = (props) => {
                 }
             )
         }
-        if(event.target.name == "imageURL"){
+        if(event.target.name == "imageFile"){
             setproductDetails({
                     ...productDetails,
-                    imageURL: event.target.value
+                    image: event.target.files[0]
                 }
             )
         }
@@ -75,7 +74,6 @@ const EditProduct = (props) => {
                 setproductDetails({
                     id: temp._id,
                     title: temp.title,
-                    imageURL: temp.imageURL,
                     price: temp.price,
                     desc: temp.desc,
                 })
@@ -87,6 +85,26 @@ const EditProduct = (props) => {
             // setproduct(data);
             // console.log(data);
             // console.log(product);
+    }
+
+    const checkAuthorization = async(token) => {
+      try {
+        const result = await axios({
+          method: "POST",
+          url: "http://localhost:8000/auth",
+          headers: {
+            "content-type": "application/json",
+            accept: "application/json",
+          },
+          data: JSON.stringify({
+            "token": token
+          })
+        });
+        console.log(result.data._id);
+        return result.data._id;
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     const sendEditProductInfo = async() => {
@@ -110,6 +128,41 @@ const EditProduct = (props) => {
         }
     }
 
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+        let data = new FormData();
+        const detailes = {
+            title: productDetails.title,
+            id: productDetails.id,
+            price: productDetails.price,
+            desc: productDetails.desc,
+        }
+        data.append("data", JSON.stringify(detailes));
+        data.append("file", productDetails.image);
+        console.log(data);
+        try {
+            const token = localStorage.getItem("JWT");
+            const id = await checkAuthorization(token);
+            const result = await axios({
+              method: "post",
+              url: `http://localhost:8000/admin/editProduct`,
+              data: data,
+              headers: {
+                "content-type": "multipart/form-data",
+              },
+            });
+            console.log(result.data);
+            setproductDetails({
+                title: "",
+                price: "",
+                desc: ""
+            });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         console.log(editProductInfo.id);
         getProductInfo(editProductInfo.id);
@@ -118,7 +171,7 @@ const EditProduct = (props) => {
     return (
         <div>
             <h1>Edit Product:</h1>
-            <form className="addProductForm">
+            <form className="addProductForm" onSubmit={handleSubmit} encType="multipart/form-data">
                 <div className="formControl">
                     <label for="productTitle" className="addProductTags mr-auto" name= "title">Title:</label>
                     <input type="text" id="productTitle" className="addProductInput" name="title" value={
@@ -126,10 +179,8 @@ const EditProduct = (props) => {
                     } onChange={productDetailsHandler}></input>
                 </div>
                 <div className="formControl">
-                    <label for="productImage" className="addProductTags" name= "imageURL">ImageURL:</label>
-                    <input type="text" id="productImage" className="addProductInput" name="imageURL" value={
-                        productDetails.imageURL
-                    } onChange={productDetailsHandler}></input>
+                    <label for="productImageFile" className="addProductTags" name= "imageFile">Image:</label>
+                    <input required type="file" id="productImageFile" className="addProductInput" name="imageFile" onChange={productDetailsHandler}></input>
                 </div>
                 <div className="formControl">
                     <label for="productPrice" className="addProductTags" name= "price">Price:</label>
@@ -143,17 +194,17 @@ const EditProduct = (props) => {
                         productDetails.desc
                     } onChange={productDetailsHandler}></textarea>
                 </div>
-                <Button variant="outlined" className={addProductButton.submitButton} onClick={sendEditProductInfo}
+                <Button variant="outlined" className={addProductButton.submitButton} type="submit"
                 style={{
                     margin: "3rem"
                 }}>
-                    <NavLink to="../shop" style={{
+                    {/* <NavLink to="../shop" style={{
                         textDecoration: "none",
                         fontSize: "inherit",
                         color: "inherit"
                     }}>
-                        Edit Product    
-                    </NavLink>
+                    </NavLink> */}
+                    Edit Product    
                 </Button>
             </form>
         </div>

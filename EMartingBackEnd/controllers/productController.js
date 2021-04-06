@@ -3,6 +3,7 @@ const ProductModel = require('../models/product');
 const Cart = require('../models/cart');
 const mongodb = require('mongodb');
 const User = require('../models/user');
+const fs = require('fs');
 const Order = require("../models/order");
 
 exports.getAddProduct = (req, res, next)=>{
@@ -42,11 +43,38 @@ exports.postAddProduct = (req, res, next)=>{
     }
 };
 
-exports.postEditProduct = (req, res, next) => {
+exports.postEditProduct = async(req, res, next) => {
+    console.log("EDITING THE PRODUCT");
+    req.body.data = JSON.parse(req.body.data);
+    if (req.body.data.title != undefined && req.files.file !== null) {
+        const product = await ProductModel.findById(req.body.data.id);
+        console.log("DELETING: ", `./uploads/${product.image.split("/")[4]}`);
+        fs.unlinkSync(`./uploads/${product.image.split("/")[4]}`);
+        req.files.file.mv(`./uploads/${req.files.file.name}`, (error) => {
+          console.log("FILE UPLOAD ERROR: ", error);
+        });
+        ProductModel.findById(req.body.data.id).then((product) => {
+            (product.title = req.body.data.title),
+            (product.desc = req.body.data.desc),
+            (product.price = req.body.data.price),
+            (product.image = `http://localhost:8000/uploads/${req.files.file.name}`),
+            product
+              .save()
+              .then((result) => {
+                console.log(result);
+                console.log("PRODUCT EDITED");
+                res.status(202).send("PRODUCT EDITED");
+              })
+              .catch((error) => {
+                console.log(error);
+                res.status(400).sene("ERROR UPDATING THE ITEM");
+              });
+          res.redirect("/");
+        });
+    }
     /* console.log("req.body: ");
     console.log(req.body.data); */
-    if(req.body.data.id!=undefined){
-        console.log("EDITING THE PRODUCT")
+    
         /* const product = new Product(
           req.body.data.id,
           req.body.data.title,
@@ -68,25 +96,7 @@ exports.postEditProduct = (req, res, next) => {
             req.body.data.price,
             new mongodb.ObjectID(req.body.data.id)
         ) */
-        ProductModel.findById(req.body.data.id)
-        .then(product => {
-            product.title = req.body.data.title,
-            product.imageURL = req.body.data.imageURL,
-            product.desc = req.body.data.desc,
-            product.price = req.body.data.price,
-            product.save()
-            .then(result=>{
-                console.log(result);
-                console.log("PRODUCT EDITED");
-                res.status(202).send("PRODUCT EDITED");
-            })
-            .catch(error=>{
-                console.log(error);
-                res.status(400).sene("ERROR UPDATING THE ITEM");
-            })
-            res.redirect("/")
-        })
-    }
+        
 }
 
 exports.postDeleteProduct = (req, res, next) => {

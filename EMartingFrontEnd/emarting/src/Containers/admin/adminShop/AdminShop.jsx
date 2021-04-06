@@ -108,7 +108,7 @@ const AdminShop = () => {
                       <CardActionArea>
                         <CardMedia
                           className={classes.media}
-                          image={item.imageURL}
+                          image={item.image}
                           title={item.title}
                         />
                         <CardContent>
