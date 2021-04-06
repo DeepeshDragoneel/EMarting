@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const authController = require('../controllers/authController');
+//middleware
+const imageUploader = require('../middleware/upload.js');
+const imageValidator = require("../middleware/pictureImageValidator.js");
+
+router.post(
+  "/productImages",
+  imageUploader,
+  imageValidator, productController.postproductImages
+);
+
+router.post("/deleteToken/:id", authController.removeAuthorization);
 
 router.post("/auth", authController.checkAuthorization);
 

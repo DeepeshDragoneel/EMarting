@@ -4,9 +4,13 @@ const productController = require('../controllers/productController');
 
 const products = [];
 
+//middleware
+const imageUploader = require('../middleware/upload.js');
+const imageValidator = require("../middleware/pictureImageValidator.js");
+
 router.get("/addProduct", productController.getAddProduct);
 
-router.post("/addProduct",productController.postAddProduct);
+router.post("/addProduct/:id", productController.postAddProduct);
 
 // router.get("/editProduct/", (req, res)=>{
 //     res.send("<h1>Hello</h1>")

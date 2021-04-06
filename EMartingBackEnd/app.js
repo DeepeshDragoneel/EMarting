@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const multer = require('multer');
+const morgan = require('morgan');
+const fileUpload = require("express-fileupload");
 
 const adminData = require('./routes/admin');
 const customerRoutes = require('./routes/customers');
@@ -14,15 +17,12 @@ const User = require('./models/user');
 const app = express();
 
 app.use(cors());
-
+app.use(morgan('dev'));
 app.use(bodyParser.urlencoded( {extended: true} ))
 app.use(bodyParser.json())
 app.use(express.json())
-app.use(session({
-    secret: "aijhdasjdfbaskdfjadshfklsdfjsadfkjbsdaf",
-    resave: false,
-    saveUninitialized: false
-}));
+app.use(fileUpload());
+app.use("/uploads", express.static("./uploads"));
 app.use("/UserAuth",(req, res, next) => {
     console.log("User:")
     console.log(req.body);

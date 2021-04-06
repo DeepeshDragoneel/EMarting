@@ -10,46 +10,24 @@ exports.getAddProduct = (req, res, next)=>{
 };
 
 exports.postAddProduct = (req, res, next)=>{
-    console.log("Add Products Controller");
-    //console.log(req.body);
-    if(req.body.data.title!=undefined){
-        /* const product = new Product(
-            null,
-            req.body.title,
-            req.body.imageURL,
-            req.body.desc,
-            req.body.price
-        );
-        const productModel = new ProductModel(
-            req.body.title,
-            req.body.imageURL,
-            req.body.desc,
-            req.body.price
-        );
-        product.save();
-        productModel.save()
-        .then(result => {
-            console.log("ADDED PRODUCT TO DB");
-            res.status(202).send("ADDED PRODUCT TO DB");
-        })
-        .catch(error=>{
-            console.log(error);
-            res.status(400).send("ERROR ADDING PRODUCT TO DB")
-        })
-        console.log("req.body: ");
-        console.log(req.body);
-        // Product.fetchAll((products) => {
-        //     console.log("Product: ");
-        //     console.log(products);
-        // });
-        res.redirect("/"); */
+    console.log("Add Products Controller: ", req.body);
+    console.log("Add Products Controller: ", req.params);
+    if (req.files.file !== null) {
+      req.files.file.mv(`./uploads/${req.files.file.name}`, (error) => {
+        console.log("FILE UPLOAD ERROR: ", error);
+      });
+    }
+    req.body.data = JSON.parse(req.body.data);
+    if(req.body.data.title!=undefined && req.files.file !== null){
+        //console.log(image);
         const product = new ProductModel({
-            title: req.body.data.title,
-            imageURL: req.body.data.imageURL,
-            desc: req.body.data.desc,
-            price: req.body.data.price,
-            userId: req.body.user._id
-        })
+          title: req.body.data.title,
+          image: `http://localhost:8000/uploads/${req.files.file.name}`,
+          desc: req.body.data.desc,
+          price: req.body.data.price,
+          userId: req.params.id,
+        });
+        console.log(product);
         product
           .save()
           .then((result) => {
@@ -60,8 +38,6 @@ exports.postAddProduct = (req, res, next)=>{
             console.log(error);
             res.status(400).send("ERROR ADDING PRODUCT TO DB");
           });
-        console.log("req.body: ");
-        console.log(req.body);
         res.redirect("/");
     }
 };
@@ -276,3 +252,9 @@ exports.welcome = (req, res, next)=>{
 exports.getErrorPage = (req, res, next)=>{
     res.status(404).send("<h1>Page Not Found!</h1>")
 };
+
+exports.postproductImages = (req, res, next) => {
+    res.json({
+        message: "SUCCESS"
+    })
+}

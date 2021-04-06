@@ -95,3 +95,17 @@ exports.postLogin = async (req, res, next) => {
         console.log(error);
     }
 }
+
+exports.removeAuthorization = async(req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const newTokens = user.tokens.filter((t) => t.token !== req.body.token);
+        user.tokens = newTokens;
+        user.save();
+        res.send(`User ${req.params.id} Token ${req.body.token} is removed`);
+    }
+    catch (error) {
+        res.send("ERROR REMOVING USER");
+        console.log(error);
+    }
+}

@@ -117,12 +117,17 @@ const Cart = () => {
     const getCartItems = async() =>{
         try{
           const token = localStorage.getItem("JWT");
-          const id = await checkAuthorization(token);
-          console.log("useeffect: ",id);
-            const result = await axios.get(`http://localhost:8000/cart/${id}`);
-            console.log(result.data);
-            setcartProducts(result.data);
-            console.log(cartProducts);
+          if(token === null){
+            setcartProducts(null);
+          }
+          else{
+            const id = await checkAuthorization(token);
+            console.log("useeffect: ",id);
+              const result = await axios.get(`http://localhost:8000/cart/${id}`);
+              console.log(result.data);
+              setcartProducts(result.data);
+              console.log(cartProducts);
+          }
         }
         catch(error){
             console.log(error);
@@ -158,63 +163,71 @@ const Cart = () => {
             margin: "1rem 1rem 1rem 1rem",
           }}
         >
-          {cartProducts.length === 0 ? (
+        {cartProducts!==null ?
+          (cartProducts.length === 0 ? (
             <h1>Your EMarting cart is Empty!</h1>
           ) : (
             cartProducts.map((ele) => (
               <div className="cartProductDetailesTotal">
-                <Link to={`/shop/detailes/${ele.productId._id}`}>
-                  <img src={ele.productId.imageURL} alt="product"></img>
-                </Link>
-                <div className="cartProductDetailes">
-                  <div className="cartProductTitlePrice">
-                    <Link
-                      to={`/shop/detailes/${ele.productId.id}`}
-                      className="cartProductTitleLink"
-                    >
-                      <h4 className="cartProductTitle">
-                        {ele.productId.title}
-                      </h4>
-                    </Link>
-                    <div className="cartProductPrice">
-                      <h4>₹{ele.productId.price * ele.quantity}</h4>
+                {ele.productId!==null?(
+                  <>
+                  <Link to={`/shop/detailes/${ele.productId._id}`}>
+                    <img src={ele.productId.imageURL} alt="product"></img>
+                  </Link>
+                  <div className="cartProductDetailes">
+                    <div className="cartProductTitlePrice">
+                      <Link
+                        to={`/shop/detailes/${ele.productId.id}`}
+                        className="cartProductTitleLink"
+                      >
+                        <h4 className="cartProductTitle">
+                          {ele.productId.title}
+                        </h4>
+                      </Link>
+                      <div className="cartProductPrice">
+                        <h4>₹{ele.productId.price * ele.quantity}</h4>
+                      </div>
                     </div>
-                  </div>
-                  <div className="cartProductDetiales2">
-                    <FormControl className={classes.formControl}>
-                      <InputLabel shrink htmlFor="age-native-label-placeholder">
-                        Quantity
-                      </InputLabel>
-                      <NativeSelect
-                        value={cartQuantity}
-                        onChange={cartQuantityHandler}
-                        inputProps={{
-                          name: "age",
-                          id: "age-native-label-placeholder",
+                    <div className="cartProductDetiales2">
+                      <FormControl className={classes.formControl}>
+                        <InputLabel shrink htmlFor="age-native-label-placeholder">
+                          Quantity
+                        </InputLabel>
+                        <NativeSelect
+                          value={cartQuantity}
+                          onChange={cartQuantityHandler}
+                          inputProps={{
+                            name: "age",
+                            id: "age-native-label-placeholder",
+                          }}
+                        >
+                          <option value="">None</option>
+                          <option value={10}>Ten</option>
+                          <option value={20}>Twenty</option>
+                          <option value={30}>Thirty</option>
+                        </NativeSelect>
+                        <FormHelperText>Change Quantity</FormHelperText>
+                      </FormControl>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        className={classes.button}
+                        startIcon={<DeleteIcon />}
+                        onClick={() => {
+                          deleteCartItem(ele.productId);
                         }}
                       >
-                        <option value="">None</option>
-                        <option value={10}>Ten</option>
-                        <option value={20}>Twenty</option>
-                        <option value={30}>Thirty</option>
-                      </NativeSelect>
-                      <FormHelperText>Change Quantity</FormHelperText>
-                    </FormControl>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      className={classes.button}
-                      startIcon={<DeleteIcon />}
-                      onClick={() => {
-                        deleteCartItem(ele.productId);
-                      }}
-                    >
-                      Delete
-                    </Button>
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                  </>
+                )
+                :("Yo")}
               </div>
             ))
+          )):(
+            <h1>Login to your Account to Access Cart</h1>
           )}
         </div>
         <Button onClick={
