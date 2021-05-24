@@ -5,6 +5,20 @@ const mongodb = require('mongodb');
 const User = require('../models/user');
 const fs = require('fs');
 const Order = require("../models/order");
+const PaytmChecksum = require("../routes/PaytmCheckSum");
+const {v4:uuidv4} = require('uuid');
+const formidable = require('formidable');
+const https = require('https');
+const path = require("path");
+const axios = require('axios');
+const Razorpay = require('razorpay');
+const shortid = require('shortid');
+const crypto = require('crypto');
+
+const rasorpay = new Razorpay({
+  key_id: process.env.REACT_APP_RAZORPAY_KEY_ID,
+  key_secret: process.env.REACT_APP_RAZORPAY_SECRET
+});
 
 exports.getAddProduct = (req, res, next)=>{
     res.send("<form method='POST' action='/admin/addProduct'><input type='text' name='Title'><button type='submit'>Add Product</button></form>")
@@ -112,6 +126,7 @@ exports.postDeleteProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next)=>{
+    console.log("HELLO");
     /* Product.fetchAll((products)=>{
         res.json(products);
     }) */
@@ -228,39 +243,266 @@ exports.deleteCartItem = async(req,res,next) => {
     }
 }
 
-exports.postOrder = (req, res, next)=>{
-    try {
-      console.log("POSTING ORDER");
-      console.log("ORDER POSTED");
-      //console.log(req.body);
-      req.body.user
-        .populate("cart.items.productId")
-        .execPopulate()
-        .then((user) => {
-            console.log(user.cart.items);
-            // res.status(202).json(user.cart.items);
-            const products = user.cart.items.map(product => {
-                return {
-                    product: {...product.productId._doc},
-                    quantity: product.quantity 
-                }
-            })
-            const order = new Order({
-              products: products,
-              user: {
-                username: req.body.user.username,
-                userId: req.body.user._id,
-              },
-            });
-            console.log(order);
-            return order.save();
+exports.getCallBack = (req,res) => {
+    console.log("getCallBack    ");
+    res.redirect("http://localhost:8000");
+}
+
+exports.postCallback = async(req, res) => {
+    console.log("POSTCALLBACK");
+    const callback_res = res;
+    const form = new formidable.IncomingForm();
+    try{
+        await form.parse(req, (err, fields, file) => {
+        /* import checksum generation utility */
+            fields = req.body;
+            console.log("form-parse", fields);           
+            paytmChecksum = fields.CHECKSUMHASH;
+            //delete fields.CHECKSUMHASH;
+            console.log("Hello");
+            var isVerifySignature = PaytmChecksum.verifySignature(
+                fields,
+                process.env.PAYTM_MKEY,
+                paytmChecksum
+            );
+            if (isVerifySignature) {
+                var paytmParams = {};
+                paytmParams["MID"] = fields.MID;
+                paytmParams["ORDERID"] = fields.ORDERID;
+                /*
+                * Generate checksum by parameters we have
+                * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
+                */
+                PaytmChecksum.generateSignature(
+                    (paytmParams),
+                    process.env.PAYTM_MKEY
+                ).then(async function(checksum) {
+                    paytmParams["CHECKSUMHASH"] = checksum;
+        
+                    var post_data = JSON.stringify(paytmParams);
+        
+                    // var options = {
+                    // /* for Staging */
+                    //     hostname: "securegw-stage.paytm.in",
+        
+                    //     /* for Production */
+                    //     // hostname: 'securegw.paytm.in',
+        
+                    //     port: 443,
+                    //     path: "/order/status",
+                    //     method: "POST",
+                    //     headers: {
+                    //         "Content-Type": "application/json",
+                    //         "Content-Length": post_data.length,
+                    //     },
+                    // };
+        
+                    var response = "";
+                    let res_axios;
+                    try{
+                        const result = await axios({
+                        method: "POST",
+                        url: "http://securegw-stage.paytm.in/order/status",
+                        headers: {
+                            "content-type": "application/json",
+                            accept: "application/json",
+                        },
+                        data: post_data,
+                        });
+                        console.log("RESULT: ", result.data);
+                        res_axios = result.data;
+                    }catch(error){
+                        console.log(error);
+                    }
+                    console.log("res_axios: ", res_axios);
+                    if(res_axios.STATUS === "TXN_SUCCESS"){
+                        console.log("RES_AXIOS: PAYMENT SUCCESSFULL");
+                        callback_res.redirect("http://localhost:8000");
+                        // res.redirect("http://localhost:8000");
+                    }
+                    /* var post_req = https.request(options, function (post_res) {
+                        post_res.on("data", function (chunk) {
+                            response += chunk;
+                    });
+        
+                    post_res.on("end", function () {
+                        // let result = JSON.parse(response);
+                        // if (result.STATUS === "TXN_SUCCESS") {
+                        //   //store in db
+                        //   db.collection("payments")
+                        //     .doc("mPDd5z0pNiInbSIIotfj")
+                        //     .update({
+                        //       paymentHistory: firebase.firestore.FieldValue.arrayUnion(
+                        //         result
+                        //       ),
+                        //     })
+                        //     .then(() => console.log("Update success"))
+                        //     .catch(() => console.log("Unable to update"));
+                        // }
+        
+                        // res.redirect(`http://localhost:3000/status/${result.ORDERID}`);
+                        // res.json(response);
+                        console.log("Response: ", response);
+                        let response_temp = JSON.parse(response);
+                        console.log("RESPONSE_TEMP: ", response_temp);
+                        res.redirect("http://localhost:8000");
+                        if(response_temp.STATUS === "TXN_SUCCESS"){
+                            console.log("PAYMENT SUCCESSFULL")
+                        }
+                    });
+                    });
+        
+                    console.log("HELLO BEFORE WRITE");
+                    post_req.write(post_data);
+                    console.log("HELLO BEFORE END");
+                    post_req.end();
+                    console.log("HELLO AFTER END"); */
+                    /* res.redirect("http://localhost:3000")
+                    console.log("AFTER RES.RESIRECT");
+                    res.setHeader('Location', '/')
+                    console.log("AFTER RES.SETHEADER") */
+                });        
+            } else {
+                console.log("Checksum Mismatched");
+            }
+        });
+        // return res.redirect("http://localhost:3000");
+    }
+    catch(error){
+        console.log(error);
+    }
+};
+
+exports.postOrder = async(req, res, next)=>{
+    //https://securegw-stage.paytm.in/order/process
+    //https://securegw-stage.paytm.in/order/status
+    /* import checksum generation utility */
+    var params = {};
+
+    /* initialize an array */
+    console.log("PostORDER: ",req.body);
+    try{
+        const user = await User.findById(req.body.id);
+        const amount = req.body.totalPrice;
+        const email = user.email;
+        const totalAmount = JSON.stringify(amount);
+        params["MID"] = process.env.PAYTM_MID
+        params["WEBSITE"] = process.env.PAYTM_WEBSITE
+        params["CHANNEL_ID"] = process.env.PAYTM_CHANNEL_ID
+        params["INDUSTRY_TYPE_ID"] = process.env.PAYTM_INDUSTRY_TYPE_ID
+        params["ORDER_ID"] = uuidv4()
+        params["CUST_ID"] = req.body.id;
+        params["TXN_AMOUNT"] = totalAmount
+        params["CALLBACK_URL"] = "http://localhost:8000/callback"
+        params["EMAIL"] = email
+        params["MOBILE_NO"] = "8185910167"
+        
+        /**
+         * Generate checksum by parameters we have
+         * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
+         */
+        var paytmChecksum = PaytmChecksum.generateSignature(
+            params,
+            process.env.PAYTM_MKEY
+        );
+        paytmChecksum
+        .then(function (checksum) {
+            let paytmParams = {
+                ...params,
+                "CHECKSUMHASH": checksum
+            }
+            res.json(paytmParams);
         })
-        .catch((error) => {
-          console.log(error);
+        .catch(function (error) {
+            console.log(error);
         });
     }
-    catch (error) {
-        res.status(400).send("Error Getting cart item!");
+    catch(error){
+        console.log(error);
+    }
+//   try {
+//     console.log("POSTING ORDER");
+//     console.log("ORDER POSTED");
+//     //console.log(req.body);
+//     req.body.user
+//       .populate("cart.items.productId")
+//       .execPopulate()
+//       .then((user) => {
+//         console.log(user.cart.items);
+//         // res.status(202).json(user.cart.items);
+//         const products = user.cart.items.map((product) => {
+//           return {
+//             product: { ...product.productId._doc },
+//             quantity: product.quantity,
+//           };
+//         });
+//         const order = new Order({
+//           products: products,
+//           user: {
+//             username: req.body.user.username,
+//             userId: req.body.user._id,
+//           },
+//         });
+//         console.log(order);
+//         return order.save();
+//       })
+//       .catch((error) => {
+//         console.log(error);
+//       });
+//   } catch (error) {
+//     res.status(400).send("Error Getting cart item!");
+//   }
+}
+
+exports.postOrderRazorpay = async(req, res) => {
+    const user = await User.findById(req.body.id);
+    const payment_capture = 1;
+    console.log(req.body);
+    const data = (req.body);
+    const amount = data.totalPrice;
+    console.log("amount: ", amount);
+    const currency = 'INR';
+    const options = {
+      amount: amount * 100,
+      currency,
+      receipt: shortid.generate(),
+      payment_capture,
+    };
+    try{
+        const response = await rasorpay.orders.create(options);
+        console.log(response);
+        res.json({
+          id: response.id,
+          currency: "INR",
+          amount: response.amount,
+          email: user.email
+        });
+    }
+    catch(error){
+        console.log(error);
+    }
+}; 
+
+exports.orderVerification = (req, res) => {
+    const secret = process.env.REACT_APP_RAZORPAY_WEBHOOK_SECRET;
+    const shasum = crypto.createHmac('sha256', secret);
+    shasum.update(JSON.stringify(req.body));
+    const digest = shasum.digest('hex');
+    console.log("Hello")
+    console.log(req.body);
+    console.log(digest, req.headers["x-razorpay-signature"])
+    if (digest === req.headers["x-razorpay-signature"]){
+        console.log("PAYED!");
+        res.json({
+            status: "OK",
+        });
+        /* res.redirect("http://localhost:3000/order?msg=SUCCESS"); */
+        /* res.setHeader("Location", "/"); */
+    }
+    else{
+        res.json({
+          status: "OK",
+        });
     }
 }
 

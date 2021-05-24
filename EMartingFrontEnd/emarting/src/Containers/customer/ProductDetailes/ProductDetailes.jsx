@@ -57,7 +57,7 @@ const ProductDetailes = () => {
             }}
           >
             <img
-              src={product.imageURL}
+              src={product.image}
               className="productDetailesImage"
               alt="Product"
             ></img>

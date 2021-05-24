@@ -1,15 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
 .welcomePageBody{
+    padding-top: 3rem;
     padding-bottom: 20px;
     max-width: 100%;
     height: max-content;
     min-height: 87.6vh;
     background-color: #545454;
+    @media screen and (max-width: 700px){
+        padding-top: 5rem;
+    }
+    @media screen and (max-width: 400px){
+        padding-top: 7rem;
+    }
     .welcomePageHeading{
         font-family: 'Orbitron', sans-serif;
         color: white;
         font-size: 4rem;
         text-shadow: "-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #ffff, 1px 1px 0 #ffff";
+        @media screen and (max-width: 400px){
+            font-size: 2rem;
+        }
     }
     .welcomePageTagLine{
         font-family: 'Orbitron', sans-serif;

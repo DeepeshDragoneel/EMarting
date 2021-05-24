@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './Cart.scss';
 import NavBar from '../../../Components/NavBar/NavBar';
 import axios from 'axios';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormHelperText from "@material-ui/core/FormHelperText";
@@ -35,6 +35,12 @@ const Cart = () => {
     const [cartQuantity, setcartQuantity] = useState();
     const [cartProducts, setcartProducts] = useState([]);
     console.log(cartProducts);
+
+    const history = useHistory();
+    const routeChange = () => {
+      let path = `../order`;
+      history.push(path);
+    };
 
     const checkAuthorization = async(token) => {
       try {
@@ -174,7 +180,9 @@ const Cart = () => {
                 {ele.productId!==null?(
                   <>
                   <Link to={`/shop/detailes/${ele.productId._id}`}>
-                    <img src={ele.productId.image} alt="product"></img>
+                    <img src={ele.productId.image} alt="product" style={{
+                      flex: "calc(600/800)"
+                    }}></img>
                   </Link>
                   <div className="cartProductDetailes">
                     <div className="cartProductTitlePrice">
@@ -235,6 +243,7 @@ const Cart = () => {
         <Button onClick={
           () => {
             orderCartItems();
+            routeChange();
           }
         }>Order</Button>
       </div>

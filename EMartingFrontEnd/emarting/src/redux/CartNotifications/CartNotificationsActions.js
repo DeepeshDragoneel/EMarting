@@ -9,4 +9,4 @@ const decrementCartNotification = () => {
     }
 }
 
-export {incrementCartNotification, decrementCartNotification}
+export {incrementCartNotification, decrementCartNotification};

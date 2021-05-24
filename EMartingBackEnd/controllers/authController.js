@@ -1,6 +1,17 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const sendGridTransport = require('nodemailer-sendgrid-transport');
+
+const transporter = nodemailer.createTransport(
+  sendGridTransport({
+    auth: {
+      api_key:
+        "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",
+    },
+  })
+);
 
 exports.checkAuthorization = async(req,res,next) => {
     try{
@@ -46,9 +57,20 @@ exports.postSignUp = async(req, res, next) => {
             console.log("user SingedUp with Token: ",token);
             /* localStorage.setItem("JWT", token); */
             await user.save();
+            console.log("SENDING EMAIL TO: ",user.email);
+            transporter.sendMail({
+              to: user.email,
+              from: "deepeshash444@gmail.com",
+              subject: "SignUp Successfull",
+              html:
+                "<div><h1>SignUp successfull <br/>Happy shopping</h1><br/><br/><br/><hr/>EMarting</div>"
+            }).then((res)=>{
+                console.log(res);
+            }).catch(error=>console.log(error));
             res.json({
-                token: token
-            })
+              token: token,
+              username: req.body.data.username.trim()
+            });
         }
     }
     catch(error){
@@ -76,7 +98,8 @@ exports.postLogin = async (req, res, next) => {
                 console.log("User LoggedIn with Token: ", token);
                 res.json({
                   code: "SUCCESS",
-                  token: token
+                  token: token,
+                  username: user.username
                 });
             }
             else{

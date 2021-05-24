@@ -6,6 +6,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import axios from 'axios';
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import { useSelector, useDispatch } from "react-redux";
+import {logoutUser, loginUser} from "../../../redux/LoginLogoutFeatues/LoginLogoutFeaturesActions";
+import { NavLink } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles({
   button: {
@@ -20,9 +24,16 @@ const LoginPage = (props) => {
   const [showPass, setshowPass] = useState(false);
     const [errors, seterrors] = useState("");
     const [userInfo, setuserInfo] = useState({
-        email: "",
-        pass: ""
+      email: "",
+      pass: ""
     });
+    const history = useHistory();
+    const routeChange = () => {
+      let path = `../`;
+      history.push(path);
+    };
+    const userLoggedIn = useSelector((state) => state.loggedIn.loggedIn);
+    const LoginLogoutFeatuesDispatch = useDispatch();
 
     const inputFormHandler = (event) => {
         if(event.target.name == "email"){
@@ -61,6 +72,11 @@ const LoginPage = (props) => {
             if(result.data.code=="SUCCESS"){
               console.log("SETTING THE TOKEN!")
               localStorage.setItem("JWT", result.data.token);
+              console.log(result.data.username.split(" ")[0]);
+              localStorage.setItem(
+                "username",
+                result.data.username.split(" ")[0]
+              );
             }
             console.log("SENT USER INFO");
         }
@@ -144,11 +160,26 @@ const LoginPage = (props) => {
             >
               {errors}
             </p>
+            <li className="nav-item" style={{
+              listStyleType: "none"
+            }}>
+              <NavLink
+                exact
+                activeClassName="linkIsActive"
+                className="nav-link"
+                aria-current="page"
+                to="/signUp"
+              >
+                New to Emarting?
+              </NavLink>
+            </li>
             <Button
               variant="contained"
               className={classes.button}
-              onClick={() => {
-                submitLoginDetails();
+              onClick={async() => {
+                await submitLoginDetails();
+                LoginLogoutFeatuesDispatch(loginUser());
+                routeChange();
               }}
             >
               Login

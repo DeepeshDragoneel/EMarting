@@ -21,6 +21,7 @@ import SendIcon from "@material-ui/icons/Send";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import StarBorder from "@material-ui/icons/StarBorder";
+import {logoutUser, loginUser} from "../../redux/LoginLogoutFeatues/LoginLogoutFeaturesActions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -92,7 +93,7 @@ const NavBar = (props) => {
                 const token = localStorage.getItem("JWT");
                 const id = await checkAuthorization(token);
                 if(id !== undefined){
-                    console.log("No user Logged in!");
+                  LoginLogoutFeatuesDispatch(loginUser());
                     setuserAuthenticated(true);
                 }
             }
@@ -103,6 +104,13 @@ const NavBar = (props) => {
       (state) => state.notifications.notification
     );
     const cartNotificationDispatch = useDispatch();
+    const userLoggedIn = useSelector(
+      (state) => state.loggedIn.loggedIn
+    );
+    const username = useSelector(
+      (state) => state.loggedIn.userName
+    );
+    const LoginLogoutFeatuesDispatch = useDispatch();
     return (
       <div>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -211,14 +219,27 @@ const NavBar = (props) => {
                     </Badge>
                   </NavLink>
                 </li>
-                {userAuthenticated ? (
+                {!userLoggedIn ? (
+                  <li className="nav-item">
+                    <NavLink
+                      exact
+                      activeClassName="linkIsActive"
+                      className="nav-link"
+                      aria-current="page"
+                      to="/login"
+                    >
+                      Login
+                    </NavLink>
+                  </li>
+                ):null}
+                {userLoggedIn === true ? (
                     <List
                       component="nav"
                       aria-labelledby="nested-list-subheader"
                       className={classes.root}
                     >
                       <ListItem button onClick={handleClick}>
-                        <ListItemText primary="Hello Deepesh" />
+                        <ListItemText primary={`Hello ${username}`}/>
                         {open ? <ExpandLess /> : <ExpandMore />}
                       </ListItem>
                       <Collapse in={open} timeout="auto" unmountOnExit>
@@ -238,7 +259,8 @@ const NavBar = (props) => {
                                 onClick={() => {
                                     removeUserToken();
                                     localStorage.removeItem("JWT");
-                                    setuserAuthenticated(false);
+                                    localStorage.removeItem("username");
+                                    LoginLogoutFeatuesDispatch(logoutUser());
                                 }}
                               >
                                 LOGOUT

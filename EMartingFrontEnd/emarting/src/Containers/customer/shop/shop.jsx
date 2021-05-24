@@ -9,9 +9,13 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import { incrementCartNotification } from '../../../redux/CartNotifications/CartNotificationsActions';
+import {
+  logoutUser,
+  loginUser
+} from "../../../redux/LoginLogoutFeatues/LoginLogoutFeaturesActions";
 
 const useStyles = makeStyles({
   root: {
@@ -27,6 +31,13 @@ const Shop = () => {
     const [Products, setProducts] = useState([]);
 
     const classes = useStyles();
+
+    const history = useHistory();
+
+    const routeChange = () => {
+      let path = `../login`;
+      history.push(path);
+    };
 
     const checkAuthorization = async (token) => {
       try {
@@ -50,7 +61,7 @@ const Shop = () => {
     
     const getProducts = async() => {
         try{
-            
+            console.log("GETTING PRODUCTS");
             const temp = await axios.get(`http://localhost:8000/shop/`);
             console.log(temp.data);
             setProducts(temp.data);
@@ -80,13 +91,15 @@ const Shop = () => {
             console.log(e);
         }
     }
-
-    useEffect(() => {
-        getProducts();
-    }, [])
-
     //cartNotifications Redux
     const cartNotificationDispatch = useDispatch();
+
+    const userLoggedIn = useSelector((state) => state.loggedIn.loggedIn);
+
+    useEffect(() => {
+        cartNotificationDispatch(loginUser());
+        getProducts();
+    }, [])
 
     return (
       <>
@@ -161,13 +174,26 @@ const Shop = () => {
                         type="button"
                         class="btn btn-outline-dark"
                         onClick={() => {
-                          addToCartProduct(item);
-                          cartNotificationDispatch(incrementCartNotification());
+                          if (userLoggedIn === true) {
+                            addToCartProduct(item);
+                            cartNotificationDispatch(incrementCartNotification());
+                          } else {
+                            routeChange();
+                          }
                         }}
                       >
                         Add To Cart 🛒
                       </button>
-                      <button type="button" class="btn btn-outline-success">
+                      <button
+                        type="button"
+                        class="btn btn-outline-success"
+                        onClick={() => {
+                          if (userLoggedIn === true) {
+                          } else {
+                            routeChange();
+                          }
+                        }}
+                      >
                         Buy Now
                       </button>
                     </CardActions>

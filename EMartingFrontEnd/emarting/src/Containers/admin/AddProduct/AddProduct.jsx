@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import './AddProduct.scss';
 import axios from 'axios';
 import NavBar from '../../../Components/NavBar/NavBar';
-import {NavLink} from 'react-router-dom';
+import {NavLink, useHistory} from 'react-router-dom';
 
 const useStyles = makeStyles({
     submitButton: {
@@ -19,6 +19,11 @@ const useStyles = makeStyles({
 })
 
 const AddProduct = (props) => {
+    const history = useHistory();
+    const routeChange = () => {
+      let path = `/admin/shop`;
+      history.push(path);
+    };
     const [errors, seterrors] = useState({
         errors: ""
     })
@@ -140,6 +145,7 @@ const AddProduct = (props) => {
         catch (error) {
             console.log(error);
         }
+        routeChange();
     }
 
     return (

@@ -6,6 +6,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import { NavLink, useHistory } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  logoutUser,
+  loginUser,
+} from "../../../redux/LoginLogoutFeatues/LoginLogoutFeaturesActions";
 
 const useStyles = makeStyles({
   button: {
@@ -48,6 +54,11 @@ const SignUpPage = (props) => {
     }
     console.log(userInfo);
   };
+  const history = useHistory();
+  const routeChange = () => {
+    let path = `../`;
+    history.push(path);
+  };
 
   const submitLoginDetails = async () => {
     try {
@@ -80,6 +91,7 @@ const SignUpPage = (props) => {
       }
       if(result.data.token!=undefined){
         localStorage.setItem("JWT", result.data.token);
+        localStorage.setItem("username", result.data.username.split(" ")[0]);
       }
       console.log("SENT USER INFO");
       console.log(errors);
@@ -87,6 +99,8 @@ const SignUpPage = (props) => {
       console.log(error);
     }
   };
+
+  const LoginLogoutFeatuesDispatch = useDispatch();
 
   const classes = useStyles(props);
   return (
@@ -171,7 +185,7 @@ const SignUpPage = (props) => {
                 setshowPass(!showPass);
               }}
             >
-              {showPass ? <VisibilityIcon /> : <VisibilityOffIcon/>}
+              {showPass ? <VisibilityIcon /> : <VisibilityOffIcon />}
             </div>
             <label for="floatingPassword">Password</label>
           </div>
@@ -203,11 +217,31 @@ const SignUpPage = (props) => {
           >
             {errors.email}
           </p>
+          <li
+            className="nav-item"
+            style={{
+              listStyleType: "none",
+              color: "blue"
+            }}
+          >
+            <NavLink
+              exact
+              aria-current="page"
+              to="/login"
+              style={{
+                color: "blue !important"
+              }}
+            >
+              New to Emarting?
+            </NavLink>
+          </li>
           <Button
             variant="contained"
             className={classes.button}
-            onClick={() => {
-              submitLoginDetails();
+            onClick={async() => {
+              await submitLoginDetails();
+              LoginLogoutFeatuesDispatch(loginUser());
+              routeChange();
             }}
           >
             SignUp
