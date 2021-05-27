@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
 .welcomePageBody{
+    vertical-align: middle;
     padding-top: 3rem;
     padding-bottom: 20px;
     max-width: 100%;
     height: max-content;
     min-height: 87.6vh;
-    background-color: #545454;
     @media screen and (max-width: 700px){
         padding-top: 5rem;
     }
@@ -20,17 +20,47 @@
         @media screen and (max-width: 400px){
             font-size: 2rem;
         }
+        animation: welcomePageHeading 1s cubic-bezier(.09,.51,.72,.38) 0s;
+    }
+    @keyframes welcomePageHeading{
+        0%{
+            transform: translateY(4rem);
+            opacity: 0;
+        }
+        100%{
+            transform: translateY(0rem);
+            opacity: 1;
+        }
     }
     .welcomePageTagLine{
         font-family: 'Orbitron', sans-serif;
-        color: white;
-        font-size: 1rem;
-        text-shadow: "-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #ffff, 1px 1px 0 #ffff";
+        color: rgb(255, 255, 255);
+        font-weight: 300;
+        font-size: 1.3rem;
+        text-shadow: "-1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000";
         margin-bottom: "2rem";
+        animation: welcomePageTagLine 1s cubic-bezier(.09,.51,.72,.38) 0s;
+    }
+    @keyframes welcomePageTagLine{
+        0%{
+            transform: translateY(-2rem);
+            opacity: 0;
+        }
+        100%{
+            transform: translateY(0rem);
+            opacity: 1;
+        }
     }
     .welcomePageIllustration{
         max-width: 30%;
         max-height: 40%;
+    }
+    .homePageButtons{
+        display: flex;
+        justify-content: center;
+        Button{
+            margin: 0.5rem;
+        }
     }
 }
 
