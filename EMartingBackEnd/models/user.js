@@ -69,13 +69,33 @@ const UserSchema = new Schema({
 UserSchema.methods.authTokenGeneration = async function(){
     try{
         console.log("JWT THIS: ", this);
-        const userToken = jwt.sign({_id: this._id.toString()}, process.env.SECRET_KEY);
+        const userToken = jwt.sign(
+            {
+                email: this.email.toString(),
+                username: this.email.toString(),
+                password: this.password.toString(),
+            },
+            process.env.SECRET_KEY
+        );
         this.tokens.push({
           token: userToken,
         });
         console.log(this.tokens);
         await this.save();
         return userToken;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+UserSchema.methods.emailTokenGeneration = async function(){
+    try{
+        console.log("EMAIL JWT THIS: ", this);
+        const emailToken = jwt.sign({_id: this.email.toString()}, process.env.SECRET_KEY);
+        this.emailToken= emailToken;
+        console.log("This.emailToken ",this.emailToken);
+        await this.save();
+        return emailToken;
     }
     catch(error){
         console.log(error);

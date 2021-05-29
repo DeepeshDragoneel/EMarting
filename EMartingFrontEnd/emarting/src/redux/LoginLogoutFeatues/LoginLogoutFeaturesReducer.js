@@ -1,54 +1,53 @@
-const axios = require('axios');
+const axios = require("axios");
 
 const initialState = {
     loggedIn: false,
-    userName: ""
-}
+    userName: "",
+};
 
 const checkAuthorization = async (token) => {
-  try {
-    const result = await axios({
-      method: "POST",
-      url: "http://localhost:8000/auth",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-      data: JSON.stringify({
-        token: token,
-      }),
-    });
-    return result.data.username;
-  } catch (error) {
-    console.log(error);
-  }
+    try {
+        const result = await axios({
+            method: "POST",
+            url: "http://localhost:8000/auth",
+            headers: {
+                "content-type": "application/json",
+                accept: "application/json",
+            },
+            data: JSON.stringify({
+                token: token,
+            }),
+        });
+        return result.data.username;
+    } catch (error) {
+        console.log(error);
+    }
 };
 
 const LoginLogoutFeaturesReducer = (state = initialState, action) => {
     const token = localStorage.getItem("JWT");
     const username = localStorage.getItem("username");
     console.log(token);
-    if(token !== null){
+    if (token !== null) {
         action.type = "LOGIN_USER";
+    } else if (token === null) {
+        action.type = "LOGOUT_USER";
     }
-    else if(token === null){ 
-      action.type = "LOGOUT_USER";
-    }
-    switch(action.type){
+    switch (action.type) {
         case "LOGOUT_USER":
-            return{
+            return {
                 ...state,
-                loggedIn: false
-            }
-            case "LOGIN_USER":
-                return{
-                    ...state,
-                    loggedIn: true,
-                    userName: username
-        }
+                loggedIn: false,
+            };
+        case "LOGIN_USER":
+            return {
+                ...state,
+                loggedIn: true,
+                userName: username,
+            };
         default:
-            return state
+            return state;
     }
-}
+};
 
 export default LoginLogoutFeaturesReducer;

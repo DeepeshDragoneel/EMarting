@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect} from "react";
 import "./HomePage.scss";
 import NavBar from "../../../Components/NavBar/NavBar";
 import shopping_img from "../../../assets/shopping_image.svg";
@@ -6,6 +6,12 @@ import { Link } from "react-router-dom";
 import homePageBackground from "../../../assets/homePageBackground.jpg";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    logoutUser,
+    loginUser,
+} from "../../../redux/LoginLogoutFeatues/LoginLogoutFeaturesActions";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -40,6 +46,45 @@ const useStyles = makeStyles((theme) => ({
 
 const HomePage = () => {
     const classes = useStyles();
+    const [userAuthenticated, setuserAuthenticated] = useState(false);
+    const userLoggedIn = useSelector((state) => state.loggedIn.loggedIn);
+    const username = useSelector((state) => state.loggedIn.userName);
+    const LoginLogoutFeatuesDispatch = useDispatch();
+    const checkAuthorization = async (token) => {
+        try {
+            const result = await axios({
+                method: "POST",
+                url: "http://localhost:8000/auth",
+                headers: {
+                    "content-type": "application/json",
+                    accept: "application/json",
+                },
+                data: JSON.stringify({
+                    token: token,
+                }),
+            });
+            console.log(result.data._id);
+            return result.data._id;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    useEffect(() => {
+        if (localStorage.getItem("JWT") === null) {
+            setuserAuthenticated(false);
+            console.log("No user Logged in!");
+        } else {
+            const logOut = async () => {
+                const token = localStorage.getItem("JWT");
+                const id = await checkAuthorization(token);
+                if (id !== undefined) {
+                    LoginLogoutFeatuesDispatch(loginUser());
+                    setuserAuthenticated(true);
+                }
+            };
+            logOut();
+        }
+    }, [userAuthenticated]);
     return (
         <div
             className="welcomePageBody"
@@ -57,24 +102,26 @@ const HomePage = () => {
                 </p>
             </div>
             <div className="homePageButtons">
-                <Button
-                    variant="outlined"
-                    color="secondary"
-                    className={classes.homePageShopButtonOutline}
-                >
-                    <Link
-                        to="/shop"
-                        style={{
-                            textDecoration: "none",
-                            color: "inherit",
-                            height: "100%",
-                            width: "100%",
-                            padding: "0.5rem 1rem",
-                        }}
+                {userLoggedIn === false ? (
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        className={classes.homePageShopButtonOutline}
                     >
-                        LogIn
-                    </Link>
-                </Button>
+                        <Link
+                            to="/login"
+                            style={{
+                                textDecoration: "none",
+                                color: "inherit",
+                                height: "100%",
+                                width: "100%",
+                                padding: "0.5rem 1rem",
+                            }}
+                        >
+                            LogIn
+                        </Link>
+                    </Button>
+                ) : null}
                 <Button
                     variant="contained"
                     color="secondary"

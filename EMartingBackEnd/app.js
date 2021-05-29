@@ -57,7 +57,7 @@ mongoose
     }
   )
   .then((result) => {
-    User.findOne().then((user) => {
+    /* User.findOne().then((user) => {
       if (!user) {
         console.log("Creating User!");
         const userModel = new User({
@@ -70,7 +70,7 @@ mongoose
         });
         userModel.save();
       }
-    });
+    }); */
     app.listen(port, (e) => {
       if (e) {
         console.log(e);
