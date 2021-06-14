@@ -3,6 +3,7 @@ const ProductModel = require("../models/product");
 const Cart = require("../models/cart");
 const mongodb = require("mongodb");
 const User = require("../models/user");
+const UserGoogle = require("../models/userGoogle");
 const fs = require("fs");
 const Order = require("../models/order");
 const PaytmChecksum = require("../routes/PaytmCheckSum");
@@ -14,6 +15,8 @@ const axios = require("axios");
 const Razorpay = require("razorpay");
 const shortid = require("shortid");
 const crypto = require("crypto");
+const { cloudinary } = require("../util/cloudinary");
+var FormData = require("form-data");
 
 const rasorpay = new Razorpay({
     key_id: process.env.REACT_APP_RAZORPAY_KEY_ID,
@@ -26,22 +29,47 @@ exports.getAddProduct = (req, res, next) => {
     );
 };
 
-exports.postAddProduct = (req, res, next) => {
-    console.log("Add Products Controller: ", req.body);
-    console.log("Add Products Controller: ", req.params);
-    if (req.files.file !== null) {
-        req.files.file.mv(`./uploads/${req.files.file.name}`, (error) => {
-            console.log("FILE UPLOAD ERROR: ", error);
+exports.postAddProduct = async(req, res, next) => {
+    // console.log("Add Products Controller: ", req);
+    // console.log("Add Products Controller: ", req.params);
+    try {
+        {/* let fromData = new FormData();
+        fromData.append("file", req.files.file);
+        fromData.append("upload_preset", req.body.upload_preset);
+        console.log(formData);
+        const result = await axios({
+            method: "post",
+            url: `https://api.cloudinary.com/v1_1/emarting/image/upload`,
+            data: formData,
+            headers: {
+                "content-type": "multipart/form-data",
+            },
         });
-    }
-    req.body.data = JSON.parse(req.body.data);
-    if (req.body.data.title != undefined && req.files.file !== null) {
-        //console.log(image);
+        console.log(result); */}
+        
+        console.log(req.files.file);
+        const uploadCloudinary = await cloudinary.uploader.upload(
+            req.files.file.tempFilePath,
+            {
+                upload_preset: `irffzxsz`,
+            }
+        );
+        console.log(uploadCloudinary);
+        /* res.json({
+            "result": "SUCCESS"
+        }) */
+        const temp = JSON.parse(req.body.data);
+        console.log(temp);
         const product = new ProductModel({
-            title: req.body.data.title,
-            image: `http://localhost:8000/uploads/${req.files.file.name}`,
-            desc: req.body.data.desc,
-            price: req.body.data.price,
+            title: temp.title,
+            image: uploadCloudinary.secure_url,
+            image_name: uploadCloudinary.public_id,
+            desc: temp.desc,
+            genre: temp.genre,
+            price: temp.price,
+            pages: temp.pages,
+            quantity: temp.quantity,
+            author: temp.author,
             userId: req.params.id,
         });
         console.log(product);
@@ -55,38 +83,72 @@ exports.postAddProduct = (req, res, next) => {
                 console.log(error);
                 res.status(400).send("ERROR ADDING PRODUCT TO DB");
             });
-        res.redirect("/");
     }
-};
-
-exports.postEditProduct = async (req, res, next) => {
-    console.log("EDITING THE PRODUCT");
-    req.body.data = JSON.parse(req.body.data);
-    if (req.body.data.title != undefined && req.files.file !== null) {
-        const product = await ProductModel.findById(req.body.data.id);
-        console.log("DELETING: ", `./uploads/${product.image.split("/")[4]}`);
-        fs.unlinkSync(`./uploads/${product.image.split("/")[4]}`);
+    catch (error) {
+        console.log("CLOUDINARY ERROR: ", error);
+        res.send("ERROR");
+    }
+    
+    /* if (req.files.file !== null) {
         req.files.file.mv(`./uploads/${req.files.file.name}`, (error) => {
             console.log("FILE UPLOAD ERROR: ", error);
         });
-        ProductModel.findById(req.body.data.id).then((product) => {
-            (product.title = req.body.data.title),
-                (product.desc = req.body.data.desc),
-                (product.price = req.body.data.price),
-                (product.image = `http://localhost:8000/uploads/${req.files.file.name}`),
-                product
-                    .save()
-                    .then((result) => {
-                        console.log(result);
-                        console.log("PRODUCT EDITED");
-                        res.status(202).send("PRODUCT EDITED");
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                        res.status(400).sene("ERROR UPDATING THE ITEM");
-                    });
-            res.redirect("/");
-        });
+    }
+    req.body.data = JSON.parse(req.body.data);
+    if (req.body.data.title != undefined && req.files.file !== null) {
+        //console.log(image);
+        res.redirect("/");
+    } */
+};
+
+exports.postEditProduct = async (req, res, next) => {
+    try {
+        console.log("EDITING THE PRODUCT");
+        req.body.data = JSON.parse(req.body.data);
+        if (req.body.data.title != undefined && req.files.file !== null) {
+            const product = await ProductModel.findById(req.body.data.id);
+            console.log("EDITTING PRODUCT:  ", product);
+            const temp = (req.body.data);
+            /* console.log("DELETING: ", `./uploads/${product.image.split("/")[4]}`);
+            fs.unlinkSync(`./uploads/${product.image.split("/")[4]}`); */
+            let uploadCloudinary = await cloudinary.uploader.destroy(
+                product.image_name, function (error, result) {
+                    console.log(result, error);
+                });
+            uploadCloudinary = await cloudinary.uploader.upload(
+                req.files.file.tempFilePath,
+                {
+                    upload_preset: `irffzxsz`,
+                }
+            );
+            console.log(uploadCloudinary.secure_url);
+            /* req.files.file.mv(`./uploads/${req.files.file.name}`, (error) => {
+                console.log("FILE UPLOAD ERROR: ", error);
+            }); */
+            (product.title = temp.title),
+                (product.image = uploadCloudinary.secure_url),
+                (product.desc = temp.desc),
+                (product.genre = temp.genre),
+                (product.price = temp.price),
+                (product.pages = temp.pages),
+                (product.quantity = temp.quantity),
+                (product.author = temp.author),
+                (product.image_name = uploadCloudinary.public_id);
+                console.log("AFTER EDITING: ", product);
+            product.save()
+                .then((result) => {
+                    console.log(result);
+                    console.log("PRODUCT EDITED");
+                    res.status(202).send("PRODUCT EDITED");
+                })
+                .catch((error) => {
+                    console.log(error);
+                    res.status(400).send("ERROR UPDATING THE ITEM");
+                });
+        }
+    }catch (error) {
+        console.log("CLOUDINARY ERROR: ", error);
+        res.send("ERROR");
     }
     /* console.log("req.body: ");
     console.log(req.body.data); */
@@ -178,7 +240,12 @@ exports.addCartProduct = async (req, res, next) => {
         //     console.log(req);
         // }
         // Cart.addProduct(req.body.product);
-        const user = await User.findById(req.params.id);
+        console.log(req.params);
+        console.log(req.body.product);
+        let user = await User.findById(req.params.id);
+        if (user === null) {
+            user = await UserGoogle.findById(req.params.id);
+        }
         console.log(user);
         user.addToCart(req.body.product);
         res.status(200).send("Successfully added to cart!");
@@ -205,7 +272,13 @@ exports.getCartProducts = async (req, res, next) => {
         console.log("----------------------");
         console.log(req.params.id);
         console.log("----------------------");
-        const user = await User.findById(req.params.id);
+        let user;
+        user = await User.findById(req.params.id);
+        console.log("USER: ", user);
+        if (user === null) {
+            user = await UserGoogle.findById(req.params.id);
+            console.log("GOOGLE-USER: ", user);
+        }
         user.populate("cart.items.productId")
             .execPopulate()
             .then((user) => {
@@ -217,6 +290,7 @@ exports.getCartProducts = async (req, res, next) => {
                         user.deleteCartProduct(item);
                     }
                 });
+                console.log(user.cart.items);
                 res.status(202).send(user.cart.items);
             })
             .catch((error) => {
@@ -231,8 +305,12 @@ exports.deleteCartItem = async (req, res, next) => {
     try {
         // Cart.delete(req.body.data);
         console.log("DELETING THE CART ITEM");
-        const user = await User.findById(req.params.id);
+        let user;
+        user = await User.findById(req.params.id);
         //console.log("DeleteCartItems: ",user);
+        if (user === null) {
+            user = await UserGoogle.findById(req.params.id);
+        }
         user.deleteCartProduct(req.body.data);
         res.status(202).send("Delected the item from cart!");
     } catch (error) {

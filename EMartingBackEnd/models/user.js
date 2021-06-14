@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { Double } = require('mongodb');
 
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
@@ -67,10 +68,12 @@ const UserSchema = new Schema({
 }) */
 
 UserSchema.methods.authTokenGeneration = async function(){
-    try{
+    try {
+        console.log("----------------------------------------")
         console.log("JWT THIS: ", this);
         const userToken = jwt.sign(
             {
+                userid: this._id.toString(),
                 email: this.email.toString(),
                 username: this.email.toString(),
                 password: this.password.toString(),

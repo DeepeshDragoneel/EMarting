@@ -18,6 +18,28 @@ const productSchema = new Schema({
         trim: true,
         require: true
     },
+    image_name: {
+        type: String,
+        trim: true,
+        require: true,
+    },
+    genre: {
+        type: String,
+        required: true,
+    },
+    author: {
+        type: String,
+        required: true,
+    },
+    pages: {
+        type: Number,
+        required: true,
+    },
+    quantity: {
+        type: Number,
+        required: true,
+        default: 1,
+    },
     desc: {
         type: String,
         required: true

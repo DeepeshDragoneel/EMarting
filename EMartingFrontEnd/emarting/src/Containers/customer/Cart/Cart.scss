@@ -1,20 +1,33 @@
-.cartProductDetailesTotal{
+.cartProductDetailesTotal {
     display: flex;
-    img{
+    img {
         width: 20rem;
     }
-    .cartProductDetailes{
+    .cartImageDiv {
+        padding: 10px;
+        height: 200px;
+        width: 200px;
+        img {
+            /* width: 100%;
+            height: 100%;
+            object-fit: cover; */
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    }
+    .cartProductDetailes {
         // border: black 2px solid;
         display: flex;
         flex-direction: column;
         width: 100%;
-        .cartProductTitlePrice{
+        .cartProductTitlePrice {
             // border: red 2px solid;
             height: fit-content;
             width: 100%;
             display: flex;
             margin: 1rem auto auto auto;
-            .cartProductTitleLink{
+            .cartProductTitleLink {
                 display: flex;
                 text-decoration: none;
                 color: black;
@@ -24,15 +37,15 @@
                 &:hover {
                     color: hotpink;
                 }
-                .cartProductTitle{
+                .cartProductTitle {
                     font-weight: 400;
                 }
             }
-            .cartProductPrice{
+            .cartProductPrice {
                 margin: auto 2rem auto auto;
             }
         }
-        .cartProductDetiales2{
+        .cartProductDetiales2 {
             // border: green 2px solid;
             margin-left: 2rem;
             display: flex;

@@ -23,10 +23,8 @@ router.post("/deleteToken/:id", authController.removeAuthorization);
 
 router.post("/auth", authController.checkAuthorization);
 
-router.post(
-    "/auth/signUp",
-    authController.postSignUp
-);
+router.post("/auth/signUp", authController.postSignUp);
+
 router.get("/auth/verifySignUp/:token", authController.verifySignUp);
 
 router.get("/auth/verifiedSignUp", authController.verifedSingUp);

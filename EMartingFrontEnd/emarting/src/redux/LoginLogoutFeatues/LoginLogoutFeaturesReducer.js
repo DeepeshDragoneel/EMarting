@@ -26,7 +26,11 @@ const checkAuthorization = async (token) => {
 
 const LoginLogoutFeaturesReducer = (state = initialState, action) => {
     const token = localStorage.getItem("JWT");
-    const username = localStorage.getItem("username");
+    let username = localStorage.getItem("username");
+    if (username.length > 12) {
+        username = username.substring(0, 12);
+        username = username.concat("...");
+    }
     console.log(token);
     if (token !== null) {
         action.type = "LOGIN_USER";

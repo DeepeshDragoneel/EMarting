@@ -13,6 +13,7 @@
     "@sendgrid/mail": "^7.4.4",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
+    "cloudinary": "^1.26.0",
     "cookies": "^0.8.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

@@ -1,0 +1,70 @@
+
+
+Sat Jun 12 21:59:37 2021
+Command line: TestDisk
+
+TestDisk 7.1, Data Recovery Utility, July 2019
+Christophe GRENIER <grenier@cgsecurity.org>
+https://www.cgsecurity.org
+OS: Linux, kernel 5.8.0-55-generic (#62~20.04.1-Ubuntu SMP Wed Jun 2 08:55:04 UTC 2021) x86_64
+Compiler: GCC 9.2
+ext2fs lib: 1.45.5, ntfs lib: libntfs-3g, reiserfs lib: none, ewf lib: none, curses lib: ncurses 6.1
+User is not root!
+Hard disk list
+
+
+TestDisk exited normally.
+Using locale 'LC_CTYPE=en_US.UTF-8;LC_NUMERIC=en_IN;LC_TIME=en_IN;LC_COLLATE=en_US.UTF-8;LC_MONETARY=en_IN;LC_MESSAGES=en_US.UTF-8;LC_PAPER=en_IN;LC_NAME=en_IN;LC_ADDRESS=en_IN;LC_TELEPHONE=en_IN;LC_MEASUREMENT=en_IN;LC_IDENTIFICATION=en_IN'.
+
+
+Sat Jun 12 21:59:37 2021
+Command line: TestDisk /debug
+
+TestDisk 7.1, Data Recovery Utility, July 2019
+Christophe GRENIER <grenier@cgsecurity.org>
+https://www.cgsecurity.org
+OS: Linux, kernel 5.8.0-55-generic (#62~20.04.1-Ubuntu SMP Wed Jun 2 08:55:04 UTC 2021) x86_64
+Compiler: GCC 9.2
+ext2fs lib: 1.45.5, ntfs lib: libntfs-3g, reiserfs lib: none, ewf lib: none, curses lib: ncurses 6.1
+/dev/sda: LBA, HPA, LBA48, DCO support
+/dev/sda: size       1953525168 sectors
+/dev/sda: user_max   1953525168 sectors
+/dev/sda: native_max 1953525168 sectors
+/dev/sda: dco        1953525168 sectors
+Warning: can't get size for Disk /dev/mapper/control - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop30 - 0 B - 0 sectors, sector size=512
+Hard disk list
+Disk /dev/sda - 1000 GB / 931 GiB - CHS 121601 255 63, sector size=512 - ST1000LM035-1RK172, S/N:WKPJN1BQ, FW:1002
+Disk /dev/loop0 - 1785 KB / 1744 KiB - 3488 sectors (RO), sector size=512
+Disk /dev/loop1 - 58 MB / 55 MiB - 113504 sectors (RO), sector size=512
+Disk /dev/loop10 - 373 MB / 356 MiB - 729912 sectors (RO), sector size=512
+Disk /dev/loop11 - 68 MB / 65 MiB - 133320 sectors (RO), sector size=512
+Disk /dev/loop12 - 67 MB / 64 MiB - 132648 sectors (RO), sector size=512
+Disk /dev/loop13 - 229 MB / 219 MiB - 448512 sectors (RO), sector size=512
+Disk /dev/loop14 - 64 MB / 61 MiB - 126424 sectors (RO), sector size=512
+Disk /dev/loop15 - 3698 KB / 3612 KiB - 7224 sectors (RO), sector size=512
+Disk /dev/loop16 - 53 MB / 51 MiB - 104536 sectors (RO), sector size=512
+Disk /dev/loop17 - 53 MB / 50 MiB - 104360 sectors (RO), sector size=512
+Disk /dev/loop18 - 309 MB / 295 MiB - 604808 sectors (RO), sector size=512
+Disk /dev/loop19 - 33 MB / 32 MiB - 65712 sectors (RO), sector size=512
+Disk /dev/loop2 - 217 MB / 207 MiB - 423984 sectors (RO), sector size=512
+Disk /dev/loop20 - 188 MB / 179 MiB - 367752 sectors (RO), sector size=512
+Disk /dev/loop21 - 183 MB / 174 MiB - 357752 sectors (RO), sector size=512
+Disk /dev/loop22 - 9531 KB / 9308 KiB - 18616 sectors (RO), sector size=512
+Disk /dev/loop23 - 163 MB / 156 MiB - 319568 sectors (RO), sector size=512
+Disk /dev/loop24 - 198 MB / 188 MiB - 386824 sectors (RO), sector size=512
+Disk /dev/loop25 - 163 MB / 156 MiB - 319560 sectors (RO), sector size=512
+Disk /dev/loop26 - 33 MB / 32 MiB - 65744 sectors (RO), sector size=512
+Disk /dev/loop27 - 116 MB / 111 MiB - 228480 sectors (RO), sector size=512
+Disk /dev/loop28 - 315 MB / 301 MiB - 616712 sectors (RO), sector size=512
+Disk /dev/loop29 - 309 MB / 295 MiB - 605408 sectors (RO), sector size=512
+Disk /dev/loop3 - 373 MB / 356 MiB - 729912 sectors (RO), sector size=512
+Disk /dev/loop4 - 217 MB / 207 MiB - 424248 sectors (RO), sector size=512
+Disk /dev/loop5 - 103 MB / 98 MiB - 202680 sectors (RO), sector size=512
+Disk /dev/loop6 - 170 MB / 162 MiB - 333552 sectors (RO), sector size=512
+Disk /dev/loop7 - 58 MB / 55 MiB - 113592 sectors (RO), sector size=512
+Disk /dev/loop8 - 229 MB / 218 MiB - 448496 sectors (RO), sector size=512
+Disk /dev/loop9 - 103 MB / 99 MiB - 203112 sectors (RO), sector size=512
+
+Partition table type (auto): EFI GPT
+SIGHUP detected! TestDisk has been killed.

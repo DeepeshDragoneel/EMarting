@@ -19,23 +19,24 @@ sgMail.setApiKey(process.env.SENDGRID_API);
 
 exports.checkAuthorization = async (req, res, next) => {
     try {
-        console.log("In auth: ", req.body);
         const token = req.body.token;
         const verifyUser = jwt.verify(token, process.env.SECRET_KEY);
-        const userGoogle = await UserGoogle.findOne({
-            email: verifyUser.email,
-        });
-        if (userGoogle != null) {
-            console.log(userGoogle);
-            res.json(userGoogle);
-        }
-        else {
-            const user = await User.findOne({
+        
+        console.log("In auth: ", req.body);
+        // console.log("Verify user: ", verifyUser);
+        let user;
+        if (verifyUser.googleId != undefined) {
+            user = await UserGoogle.findOne({
                 email: verifyUser.email,
             });
-            console.log(user);
-            res.json(user);
         }
+        else {
+            user = await User.findOne({
+                email: verifyUser.email,
+            });
+        }
+        console.log(user);
+        res.json(user);
 
     } catch (error) {
         res.send("ERROR");
@@ -46,15 +47,23 @@ exports.postGoogleLoginIn = async (req, res, next) => {
     console.log(req.body.data);
     try {
         const userGoogle = await UserGoogle.findOne({ email: req.body.data.profileObj.email })
+        if (userGoogle == undefined) {
+            return res.send("error"); 
+        }
         console.log("userGoogle: ",userGoogle);
         const token = jwt.sign(
             {
-                email: req.body.data.profileObj.email.toString(),
-                username: req.body.data.profileObj.name.toString(),
-                googleId: req.body.data.profileObj.googleId.toString(),
+                userid: userGoogle._id.toString(),
+                email: userGoogle.email.toString(),
+                username: userGoogle.username.toString(),
+                googleId: userGoogle.googleId.toString(),
             },
             process.env.SECRET_KEY
         );
+        const googleToken = jwt.verify(token, process.env.SECRET_KEY);
+        console.log("------------------------------");
+        console.log("Google User logged in (ID): ", googleToken.userid);
+        console.log("------------------------------");
         userGoogle.tokens.push({
             token: token,
         });
@@ -71,23 +80,28 @@ exports.postGoogleLoginIn = async (req, res, next) => {
 
 exports.postGoogleSignUp = async (req, res, next) => {
     try {
+        const userGoogle = new UserGoogle({
+            username: req.body.data.profileObj.name.toString(),
+            email: req.body.data.profileObj.email.toString(),
+            googleId: req.body.data.profileObj.googleId.toString(),
+        });
         const token = jwt.sign(
             {
+                userid: userGoogle._id.toString(),
                 email: req.body.data.profileObj.email.toString(),
                 username: req.body.data.profileObj.name.toString(),
                 googleId: req.body.data.profileObj.googleId.toString(),
             },
             process.env.SECRET_KEY
         );
-        const userGoogle = new UserGoogle({
-            username: req.body.data.profileObj.name.toString(),
-            email: req.body.data.profileObj.email.toString(),
-            googleId: req.body.data.profileObj.googleId.toString(),
-        });
+        const tokenUser = await jwt.verify(token, process.env.SECRET_KEY);
+        console.log("------------------------------")
+        console.log("USER SIGNED IN AS (ID): ", tokenUser.userid);
+        console.log("------------------------------")
         userGoogle.tokens.push({
             token: token,
         });
-        console.log(userGoogle)
+        console.log(userGoogle);
         await userGoogle.save();
         res.json({
             username: userGoogle.username,
@@ -198,7 +212,8 @@ exports.verifySignUp = async (req, res, next) => {
             user.password = await bcrypt.hash(user.password, 10);
             console.log("this.password: ", user.password);
             const token = await user.authTokenGeneration();
-            console.log("user SingedUp with Token: ", token);
+            const userToken = await jwt.verify(token, process.env.SECRET_KEY);
+            console.log("user SingedUp with ID: ", userToken.userid);
             await user.save();
             res.send(
                 "<div><a href=http://localhost:3000/login>Login with you Credentials!</a></div>"

@@ -6,6 +6,8 @@ import axios from 'axios';
 import NavBar from '../../../Components/NavBar/NavBar';
 import { useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
+import SelectFinder from "../../../Components/SelectFinder/SelectFinder";
+import bookGenre from "../../../assets/bookGenre.json";
 
 const useStyles = makeStyles({
     submitButton: {
@@ -22,44 +24,85 @@ const useStyles = makeStyles({
 const EditProduct = (props) => {
     const [editProductInfo, seteditProductInfo] = useState(useParams());
     const [product, setproduct] = useState({});
+    const [fileInputState, setfileInputState] = useState("");
+    const [previewImage, setpreviewImage] = useState("");
     const [productDetails, setproductDetails] = useState({
         id: "",
         title: "",
         price: "",
         desc: "",
+        genre: null,
+        author: "",
+        quantity: 0,
+        pages: 0,
     });
-    const productDetailsHandler = (event) =>{
+    const productDetailsHandler = (event) => {
         // console.log("hello");
-        if(event.target.name == "title"){
+        if (event.target.name == "title") {
             setproductDetails({
-                    ...productDetails,
-                    title: event.target.value
-                }
-            )
+                ...productDetails,
+                title: event.target.value,
+            });
         }
-        if(event.target.name == "imageFile"){
+        if (event.target.name == "author") {
             setproductDetails({
-                    ...productDetails,
-                    image: event.target.files[0]
-                }
-            )
+                ...productDetails,
+                author: event.target.value,
+            });
         }
-        if(event.target.name == "desc"){
+        if (event.target.name == "desc") {
             setproductDetails({
-                    ...productDetails,
-                    desc: event.target.value
-                }
-            )
+                ...productDetails,
+                desc: event.target.value,
+            });
         }
-        if(event.target.name == "price"){
+        if (event.target.name == "price") {
             setproductDetails({
+                ...productDetails,
+                price: event.target.value,
+            });
+        }
+        if (event.target.name == "pages") {
+            if (event.target.value < 0) {
+                setproductDetails({
                     ...productDetails,
-                    price: event.target.value
-                }
-            )
+                    pages: 0,
+                });
+            } else {
+                setproductDetails({
+                    ...productDetails,
+                    pages: event.target.value,
+                });
+            }
+        }
+        if (event.target.name == "quantity") {
+            if (event.target.value < 0) {
+                setproductDetails({
+                    ...productDetails,
+                    quantity: 0,
+                });
+            } else {
+                setproductDetails({
+                    ...productDetails,
+                    quantity: event.target.value,
+                });
+            }
+        }
+        if (event.target.name == "imageFile") {
+            setproductDetails({
+                ...productDetails,
+                image: event.target.files[0],
+            });
+            setfileInputState(event.target.files[0]);
+            console.log("Event.target: ", event.target.files[0]);
+            const reader = new FileReader();
+            reader.readAsDataURL(event.target.files[0]);
+            reader.onloadend = () => {
+                setpreviewImage(reader.result);
+            };
         }
         console.log(productDetails);
-    }
+    };
     const addProductButton = useStyles();
     let temp;
 
@@ -76,6 +119,10 @@ const EditProduct = (props) => {
                     title: temp.title,
                     price: temp.price,
                     desc: temp.desc,
+                    genre: temp.genre,
+                    pages: temp.pages,
+                    quantity: temp.quantity,
+                    author: temp.author,
                 })
               })
               .catch((error) => {
@@ -132,11 +179,15 @@ const EditProduct = (props) => {
         e.preventDefault();
         let data = new FormData();
         const detailes = {
-            title: productDetails.title,
             id: productDetails.id,
+            title: productDetails.title,
             price: productDetails.price,
             desc: productDetails.desc,
-        }
+            genre: productDetails.genre,
+            pages: productDetails.pages,
+            quantity: productDetails.quantity,
+            author: productDetails.author,
+        };
         data.append("data", JSON.stringify(detailes));
         data.append("file", productDetails.image);
         console.log(data);
@@ -155,7 +206,11 @@ const EditProduct = (props) => {
             setproductDetails({
                 title: "",
                 price: "",
-                desc: ""
+                desc: "",
+                genre: null,
+                author: "",
+                quantity: 0,
+                pages: 0,
             });
         }
         catch (error) {
@@ -171,44 +226,175 @@ const EditProduct = (props) => {
     return (
         <div>
             <h1>Edit Product:</h1>
-            <form className="addProductForm" onSubmit={handleSubmit} encType="multipart/form-data">
+            <form
+                className="addProductForm"
+                onSubmit={handleSubmit}
+                encType="multipart/form-data"
+            >
                 <div className="formControl">
-                    <label for="productTitle" className="addProductTags mr-auto" name= "title">Title:</label>
-                    <input type="text" id="productTitle" className="addProductInput" name="title" value={
-                        productDetails.title
-                    } onChange={productDetailsHandler}></input>
+                    <label
+                        for="productTitle"
+                        className="addProductTags mr-auto"
+                        name="title"
+                    >
+                        Title:
+                    </label>
+                    <input
+                        required
+                        type="text"
+                        id="productTitle"
+                        className="addProductInput"
+                        name="title"
+                        value={productDetails.title}
+                        onChange={productDetailsHandler}
+                    ></input>
                 </div>
                 <div className="formControl">
-                    <label for="productImageFile" className="addProductTags" name= "imageFile">Image:</label>
-                    <input required type="file" id="productImageFile" className="addProductInput" name="imageFile" onChange={productDetailsHandler}></input>
+                    <label
+                        for="productImageFile"
+                        className="addProductTags"
+                        name="imageURL"
+                    >
+                        Image:
+                    </label>
+                    <input
+                        required
+                        type="file"
+                        id="productImageFile"
+                        className="addProductInput"
+                        name="imageFile"
+                        onChange={productDetailsHandler}
+                    ></input>
+                </div>
+                {previewImage && (
+                    <div>
+                        <p>Preview:</p>
+                        <img
+                            src={previewImage}
+                            alt="preview"
+                            style={{
+                                height: "300px",
+                            }}
+                        ></img>
+                    </div>
+                )}
+                <div className="formControl">
+                    <label for="genre" className="addProductTags" name="genre">
+                        Genre:
+                    </label>
+                    <SelectFinder
+                        required
+                        types={bookGenre}
+                        Statement="Select the Genre "
+                        value={productDetails.genre}
+                        name="genre"
+                        onChange={setproductDetails}
+                    ></SelectFinder>
                 </div>
                 <div className="formControl">
-                    <label for="productPrice" className="addProductTags" name= "price">Price:</label>
-                    <input type="text" id="productPrice" className="addProductInput" name="price" value={
-                        productDetails.price
-                    } onChange={productDetailsHandler}></input>
-                </div>    
-                <div className="formControl">
-                    <label for="productDesc" className="addProductTags" name= "desc">Description:</label>
-                    <textarea type="text" id="productDesc" className="addProductInput" name="desc" value={
-                        productDetails.desc
-                    } onChange={productDetailsHandler}></textarea>
+                    <label
+                        for="productPrice"
+                        className="addProductTags"
+                        name="price"
+                    >
+                        Price:
+                    </label>
+                    <input
+                        required
+                        type="number"
+                        id="productPrice"
+                        className="addProductInput"
+                        value={productDetails.price}
+                        name="price"
+                        onChange={productDetailsHandler}
+                    ></input>
                 </div>
-                <Button variant="outlined" className={addProductButton.submitButton} type="submit"
-                style={{
-                    margin: "3rem"
-                }}>
+                <div className="formControl">
+                    <label for="pages" className="addProductTags" name="pages">
+                        Pages:
+                    </label>
+                    <input
+                        required
+                        type="number"
+                        id="pages"
+                        className="addProductInput"
+                        name="pages"
+                        value={productDetails.pages}
+                        onChange={productDetailsHandler}
+                    ></input>
+                </div>
+                <div className="formControl">
+                    <label
+                        for="quantity"
+                        className="addProductTags"
+                        name="quantity"
+                    >
+                        Quantity:
+                    </label>
+                    <input
+                        required
+                        type="number"
+                        id="quantity"
+                        className="addProductInput"
+                        name="quantity"
+                        value={productDetails.quantity}
+                        onChange={productDetailsHandler}
+                    ></input>
+                </div>
+                <div className="formControl">
+                    <label
+                        for="author"
+                        className="addProductTags"
+                        name="author"
+                    >
+                        Author:
+                    </label>
+                    <input
+                        required
+                        type="text"
+                        id="author"
+                        className="addProductInput"
+                        name="author"
+                        value={productDetails.author}
+                        onChange={productDetailsHandler}
+                    ></input>
+                </div>
+                <div className="formControl">
+                    <label
+                        for="productDesc"
+                        className="addProductTags"
+                        name="desc"
+                    >
+                        Description:
+                    </label>
+                    <textarea
+                        type="text"
+                        id="productDesc"
+                        className="addProductInput"
+                        name="desc"
+                        value={productDetails.desc}
+                        onChange={productDetailsHandler}
+                    ></textarea>
+                </div>
+                <Button
+                    variant="outlined"
+                    className={addProductButton.submitButton}
+                    type="submit"
+                    style={{
+                        margin: "3rem",
+                    }}
+                >
                     {/* <NavLink to="../shop" style={{
                         textDecoration: "none",
                         fontSize: "inherit",
                         color: "inherit"
                     }}>
                     </NavLink> */}
-                    Edit Product    
+                    Edit Product
                 </Button>
             </form>
         </div>
-    )
+    );
 }
 
 export default EditProduct;
