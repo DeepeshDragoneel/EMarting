@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./shop.scss";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
@@ -12,15 +12,19 @@ import axios from "axios";
 import { NavLink, useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { incrementCartNotification } from "../../../redux/CartNotifications/CartNotificationsActions";
+import SearchBar from "../../../Components/SeachBar/SeachBar";
+import SearchHook from "../../../hooks/SearchHook";
 import {
     logoutUser,
     loginUser,
 } from "../../../redux/LoginLogoutFeatues/LoginLogoutFeaturesActions";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles({
     root: {
         // width: "100rem !important",
         width: "20rem !important",
+        wordWrap: "break-word",
     },
     media: {
         height: 140,
@@ -28,11 +32,35 @@ const useStyles = makeStyles({
 });
 
 const Shop = () => {
-    const [Products, setProducts] = useState([]);
 
     const classes = useStyles();
 
     const history = useHistory();
+    const [query, setquery] = useState("");
+    const [pageNumber, setpageNumber] = useState(1);
+    const { loading, error, hasMore, Products } = SearchHook(
+        query,
+        pageNumber
+    );
+    const lastBookRef = useRef();
+    const lastBookElement = useCallback(book => {
+      if (loading) return;
+      console.log("BOOK: ", book);
+      if (lastBookRef.current) {
+        console.log("Disconnected");
+        lastBookRef.current.disconnect();
+      }
+      lastBookRef.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore>0) {
+          console.log("visible");
+          setpageNumber(pageNumber => pageNumber + 1);
+        }
+      })
+      if (book) {
+        lastBookRef.current.observe(book);
+        console.log(book);
+      }
+    }, [loading, hasMore]);
 
     const routeChange = () => {
         let path = `../login`;
@@ -59,16 +87,18 @@ const Shop = () => {
         }
     };
 
-    const getProducts = async () => {
+    /* const getProducts = async () => {
         try {
             console.log("GETTING PRODUCTS");
-            const temp = await axios.get(`http://localhost:8000/shop/`);
+            const temp = await axios.get(`http://localhost:8000/shop/`, {
+                params: { query: "", pageNumber: 1 },
+            });
             console.log(temp.data);
-            setProducts(temp.data);
+            setProducts(temp.data.products);
         } catch (error) {
             console.log(error);
         }
-    };
+    }; */
 
     const addToCartProduct = async (product) => {
         try {
@@ -97,7 +127,7 @@ const Shop = () => {
 
     useEffect(() => {
         cartNotificationDispatch(loginUser());
-        getProducts();
+        // getProducts();
     }, []);
 
     return (
@@ -110,6 +140,7 @@ const Shop = () => {
                 <h1>Products:</h1>
                 <br />
                 <br />
+                <SearchBar onChange={setquery} changePage={setpageNumber} />
                 <div
                     className="productPlace"
                     style={{
@@ -120,104 +151,210 @@ const Shop = () => {
                         alignContent: "space-between",
                     }}
                 >
-                    {Products.length === 0 ? (
+                    {Products.length === 0 && Products !== undefined ? (
                         <h1>No products Found</h1>
                     ) : (
                         Products.map((item, idx) => {
-                            return (
-                                <Card
-                                    className={classes.root}
-                                    style={{
-                                        margin: "2rem 0rem",
-                                    }}
-                                >
-                                    <NavLink
-                                        to={`/shop/detailes/${item._id}`}
+                            if (Products.length === idx + 1) {
+                                return (
+                                    <Card
+                                        className={classes.root}
                                         style={{
-                                            textDecoration: "none",
-                                            color: "inherit",
-                                            cursor: "pointer !important",
+                                            margin: "2rem 0rem",
                                         }}
+                                        ref={lastBookElement}
                                     >
-                                        <CardActionArea>
-                                            <CardMedia
-                                                className={classes.media}
-                                                image={item.image}
-                                                title={item.title}
-                                            />
-                                            <CardContent>
-                                                <Typography
-                                                    gutterBottom
-                                                    variant="h5"
-                                                    component="h2"
-                                                >
-                                                    {item.title}
-                                                </Typography>
-                                                <Typography
-                                                    variant="body2"
-                                                    color="textSecondary"
-                                                    component="p"
-                                                    style={{}}
-                                                >
-                                                    {item.desc.length > 300
-                                                        ? (item.desc = item.desc
-                                                              .substr(0, 300)
-                                                              .concat("..."))
-                                                        : (item.desc =
-                                                              item.desc.concat(
-                                                                  ""
-                                                              ))}
-                                                </Typography>
-                                                <Typography
-                                                    gutterBottom
-                                                    variant="h5"
-                                                    component="h2"
-                                                >
-                                                    ₹{item.price}
-                                                </Typography>
-                                            </CardContent>
-                                        </CardActionArea>
-                                    </NavLink>
-                                    <CardActions
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-evenly",
-                                        }}
-                                    >
-                                        <button
-                                            type="button"
-                                            class="btn btn-outline-dark"
-                                            onClick={() => {
-                                                if (userLoggedIn === true) {
-                                                    addToCartProduct(item);
-                                                    cartNotificationDispatch(
-                                                        incrementCartNotification()
-                                                    );
-                                                } else {
-                                                    routeChange();
-                                                }
+                                        <NavLink
+                                            to={`/shop/detailes/${item._id}`}
+                                            style={{
+                                                textDecoration: "none",
+                                                color: "inherit",
+                                                cursor: "pointer !important",
                                             }}
                                         >
-                                            Add To Cart 🛒
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="btn btn-outline-success"
-                                            onClick={() => {
-                                                if (userLoggedIn === true) {
-                                                } else {
-                                                    routeChange();
-                                                }
+                                            <CardActionArea>
+                                                <CardMedia
+                                                    className={classes.media}
+                                                    image={item.image}
+                                                    title={item.title}
+                                                />
+                                                <CardContent>
+                                                    <Typography
+                                                        gutterBottom
+                                                        variant="h5"
+                                                        component="h2"
+                                                    >
+                                                        {item.title}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="textSecondary"
+                                                        component="p"
+                                                        style={{}}
+                                                    >
+                                                        {item.desc.length > 300
+                                                            ? (item.desc =
+                                                                  item.desc
+                                                                      .substr(
+                                                                          0,
+                                                                          300
+                                                                      )
+                                                                      .concat(
+                                                                          "..."
+                                                                      ))
+                                                            : item.desc}
+                                                    </Typography>
+                                                    <Typography
+                                                        gutterBottom
+                                                        variant="h5"
+                                                        component="h2"
+                                                    >
+                                                        ₹{item.price}
+                                                    </Typography>
+                                                </CardContent>
+                                            </CardActionArea>
+                                        </NavLink>
+                                        <CardActions
+                                            style={{
+                                                display: "flex",
+                                                justifyContent: "space-evenly",
                                             }}
                                         >
-                                            Buy Now
-                                        </button>
-                                    </CardActions>
-                                </Card>
-                            );
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-dark"
+                                                onClick={() => {
+                                                    if (userLoggedIn === true) {
+                                                        addToCartProduct(item);
+                                                        cartNotificationDispatch(
+                                                            incrementCartNotification()
+                                                        );
+                                                    } else {
+                                                        routeChange();
+                                                    }
+                                                }}
+                                            >
+                                                Add To Cart 🛒
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-success"
+                                                onClick={() => {
+                                                    if (userLoggedIn === true) {
+                                                    } else {
+                                                        routeChange();
+                                                    }
+                                                }}
+                                            >
+                                                Buy Now
+                                            </button>
+                                        </CardActions>
+                                    </Card>
+                                );
+                            } else {
+                                return (
+                                    <Card
+                                        className={classes.root}
+                                        style={{
+                                            margin: "2rem 0rem",
+                                        }}
+                                    >
+                                        <NavLink
+                                            to={`/shop/detailes/${item._id}`}
+                                            style={{
+                                                textDecoration: "none",
+                                                color: "inherit",
+                                                cursor: "pointer !important",
+                                            }}
+                                        >
+                                            <CardActionArea>
+                                                <CardMedia
+                                                    className={classes.media}
+                                                    image={item.image}
+                                                    title={item.title}
+                                                />
+                                                <CardContent>
+                                                    <Typography
+                                                        gutterBottom
+                                                        variant="h5"
+                                                        component="h2"
+                                                    >
+                                                        {item.title}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="textSecondary"
+                                                        component="p"
+                                                        style={{}}
+                                                    >
+                                                        {item.desc.length > 300
+                                                            ? (item.desc =
+                                                                  item.desc
+                                                                      .substr(
+                                                                          0,
+                                                                          300
+                                                                      )
+                                                                      .concat(
+                                                                          "..."
+                                                                      ))
+                                                            : item.desc}
+                                                    </Typography>
+                                                    <Typography
+                                                        gutterBottom
+                                                        variant="h5"
+                                                        component="h2"
+                                                    >
+                                                        ₹{item.price}
+                                                    </Typography>
+                                                </CardContent>
+                                            </CardActionArea>
+                                        </NavLink>
+                                        <CardActions
+                                            style={{
+                                                display: "flex",
+                                                justifyContent: "space-evenly",
+                                            }}
+                                        >
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-dark"
+                                                onClick={() => {
+                                                    if (userLoggedIn === true) {
+                                                        addToCartProduct(item);
+                                                        cartNotificationDispatch(
+                                                            incrementCartNotification()
+                                                        );
+                                                    } else {
+                                                        routeChange();
+                                                    }
+                                                }}
+                                            >
+                                                Add To Cart 🛒
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-success"
+                                                onClick={() => {
+                                                    if (userLoggedIn === true) {
+                                                    } else {
+                                                        routeChange();
+                                                    }
+                                                }}
+                                            >
+                                                Buy Now
+                                            </button>
+                                        </CardActions>
+                                    </Card>
+                                );
+                            }
                         })
                     )}
                 </div>
+                {loading ? (
+                    <div>
+                        <CircularProgress />
+                    </div>
+                ) : null}
             </div>
         </>
     );
