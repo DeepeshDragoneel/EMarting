@@ -239,7 +239,7 @@ const Cart = () => {
                                                         </h2>
                                                         <div className="cartProductDetiales2">
                                                             <p>
-                                                                Quantity:{" "}
+                                                                Quantity:
                                                                 {ele.quantity}
                                                             </p>
                                                             <Button
@@ -270,26 +270,38 @@ const Cart = () => {
                                     </>
                                 );
                             })}
-                  <div className="cartTotalPriceDiv" style={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "flex-end"
-                  }}>
-                    <h1 style={{
-                      alignSelf: "end",
-                      margin: "1rem",
-                      fontSize: "1.5rem"
-                              }}>Total: {totalPrice}</h1>
-                  </div>
+                            <div
+                                className="cartTotalPriceDiv"
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "flex-end",
+                                }}
+                            >
+                                <h1
+                                    style={{
+                                        alignSelf: "end",
+                                        margin: "1rem",
+                                        fontSize: "1.5rem",
+                                    }}
+                                >
+                                    Total: {totalPrice}
+                                </h1>
+                            </div>
 
-                            <Button
+                            <button
+                                type="button"
+                                    className="btn btn-success m-3"
+                                    style={{
+                                        width: "10rem"
+                                    }}
                                 onClick={() => {
                                     orderCartItems();
                                     routeChange();
                                 }}
                             >
                                 Order
-                            </Button>
+                            </button>
                         </>
                     )
                 ) : (

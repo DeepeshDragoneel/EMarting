@@ -37,21 +37,44 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postComment = async (req, res, next) => {
     try {
-        const comment = new Comment({
-            rating: req.body.rating,
-            heading: req.body.heading,
-            desc: req.body.desc,
-            userId: req.body.userId,
-            productId: req.body.productId,
-        });
-        console.log(comment);
-        const result = await comment.save();
-        const product = await ProductModel.findById(req.body.productId);
-        const rating = (product.rating + req.body.rating) / 2;
-        console.log("RATING: ", round(rating, 1));
-        product.rating = rating;
-        const productResult = await product.save();
-        res.send("SUCCESS");
+        if (req.body.userId.googleId === undefined) {
+            // console.log("Not google: ",req.body.userId);
+            // res.send("Done");
+            const comment = new Comment({
+                rating: req.body.rating,
+                heading: req.body.heading,
+                desc: req.body.desc,
+                userId: req.body.userId._id,
+                productId: req.body.productId,
+            });
+            console.log(comment);
+            const result = await comment.save();
+            const product = await ProductModel.findById(req.body.productId);
+            const rating = (product.rating + req.body.rating) / 2;
+            console.log("RATING: ", round(rating, 1));
+            product.rating = rating;
+            const productResult = await product.save();
+            res.send("SUCCESS");
+        }
+        else {
+            // console.log("googleuser : ",req.body.userId);
+            // res.send("Done");
+            const comment = new Comment({
+                rating: req.body.rating,
+                heading: req.body.heading,
+                desc: req.body.desc,
+                googleUserId: req.body.userId._id,
+                productId: req.body.productId,
+            });
+            console.log(comment);
+            const result = await comment.save();
+            const product = await ProductModel.findById(req.body.productId);
+            const rating = (product.rating + req.body.rating) / 2;
+            console.log("RATING: ", round(rating, 1));
+            product.rating = rating;
+            const productResult = await product.save();
+            res.send("SUCCESS");
+        }
     } catch (error) {
         console.log(error);
         res.send("ERROR");
@@ -262,6 +285,43 @@ exports.getProducts = (req, res, next) => {
         });
 };
 
+exports.getReview = async (req, res, next) => {
+    try {
+        console.log(req.query);
+        let reviewJson, reviewCount;
+        Comment.find({ productId: req.query.productId })
+            .populate("userId", "username")
+            .populate("googleUserId", "username")
+            .skip((req.query.pageNumber - 1) * 6)
+            .limit(6)
+            .then((reviews) => {
+                console.log("Sending Reviews!");
+                reviewJson = reviews;
+                console.log("reviewJSon: ", reviewJson);
+                Comment.count({
+                    productId: req.query.productId,
+                })
+                    .then((count) => {
+                        console.log("Sending REVIEW COUNT!");
+                        reviewCount = count;
+                        res.status(202).json({
+                            review: reviewJson,
+                            count: reviewCount - req.query.pageNumber * 6,
+                        });
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    } catch (error) {
+        console.log(error);
+        res.send("ERROR");
+    }
+};
+
 exports.getProductInfo = (req, res, next) => {
     ProductModel.findById(req.params.id)
         .then((product) => {
@@ -276,19 +336,19 @@ exports.getProductInfo = (req, res, next) => {
 };
 
 exports.getRatingPerStar = async (req, res, next) => {
-    try { 
+    try {
         // let mappingStarsRating = { "1": "one", "2": "two", "3": "three", '4': "four", "5":"five" };
         let ratingPerStar = {
             one: 0,
             two: 0,
             three: 0,
             four: 0,
-            five: 0,
+            five: 1,
         };
         console.log("getRatingPerStar");
         console.log(req.params.query);
         const comments = await Comment.find({ productId: req.params.query });
-        console.log(comments);
+        console.log("getRatingPerStar: ", comments);
         for (var i = 0; i < comments.length; i++) {
             if (comments[i].rating === 1) {
                 ratingPerStar = {
@@ -322,12 +382,25 @@ exports.getRatingPerStar = async (req, res, next) => {
             }
         }
         console.log(ratingPerStar);
-        const total = ratingPerStar.one + ratingPerStar.two + ratingPerStar.three + ratingPerStar.four + ratingPerStar.five;
-        ratingPerStar.one = (ratingPerStar.one/total)*100;
-        ratingPerStar.two = (ratingPerStar.two/total)*100;
-        ratingPerStar.three = (ratingPerStar.three/total)*100;
-        ratingPerStar.four = (ratingPerStar.four/total)*100;
-        ratingPerStar.five = (ratingPerStar.five/total)*100;
+        const total =
+            ratingPerStar.one +
+            ratingPerStar.two +
+            ratingPerStar.three +
+            ratingPerStar.four +
+            ratingPerStar.five;
+        ratingPerStar.one = ratingPerStar.one === 0 ? (0) : round((ratingPerStar.one / total) * 100,1);
+        ratingPerStar.two =
+            ratingPerStar.two === 0 ? 0 : round((ratingPerStar.two / total) * 100, 1);
+        ratingPerStar.three =
+            ratingPerStar.three === 0 ? 0 : round((ratingPerStar.three / total) * 100,1);
+        ratingPerStar.four =
+            ratingPerStar.four === 0
+                ? 0
+                : round((ratingPerStar.four / total) * 100, 1);
+        ratingPerStar.five =
+            ratingPerStar.five === 0
+                ? 0
+                : round((ratingPerStar.five / total) * 100, 1);
         console.log(ratingPerStar);
         res.send(ratingPerStar);
     } catch (error) {

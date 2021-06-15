@@ -1,24 +1,28 @@
 import axios from "axios";
 import "./ProductDetailes.scss";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router";
 import "./ProductDetailes.scss";
 import loading from "../../../assets/loading.gif";
 import NavBar from "../../../Components/NavBar/NavBar";
 import ProductReview from "./ProductReview/ProductReview";
 import { Rating } from "@material-ui/lab";
+import Avatar from "@material-ui/core/Avatar";
+import ProductReviewHook from "../../../hooks/ProductReviewHook";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const ProductDetailes = () => {
     const [productId, setproductId] = useState(useParams());
     const [product, setproduct] = useState({});
     const [ReviewBackDropOpen, setReviewBackDropOpen] = useState(false);
     const [rating, setrating] = useState(0);
-    const [heading, setheading] = useState("");
-    const [desc, setdesc] = useState("");
     const [userId, setuserId] = useState("");
     const [perRating, setperRating] = useState({});
     const id = productId.id;
     const url = `http://localhost:8000/shop/detailes/${id}`;
+    const [query, setquery] = useState("");
+    const [pageNumber, setpageNumber] = useState(1);
+
     function round(value, precision) {
         var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
@@ -36,8 +40,8 @@ const ProductDetailes = () => {
                     token: token,
                 }),
             });
-            console.log(result.data._id);
-            return result.data._id;
+            console.log(result.data);
+            return result.data;
         } catch (error) {
             console.log(error);
         }
@@ -67,6 +71,32 @@ const ProductDetailes = () => {
                 console.log(error);
             });
     };
+    const { loading, error, hasMore, Reviews } = ProductReviewHook(
+        product._id,
+        pageNumber
+    );
+    const lastReviewRef = useRef();
+    const lastCommentElement = useCallback(
+        (review) => {
+            if (loading) return;
+            console.log("REVIEW: ", review);
+            if (lastReviewRef.current) {
+                console.log("Disconnected");
+                lastReviewRef.current.disconnect();
+            }
+            lastReviewRef.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && hasMore > 0) {
+                    console.log("visible");
+                    setpageNumber((pageNumber) => pageNumber + 1);
+                }
+            });
+            if (review) {
+                lastReviewRef.current.observe(review);
+                console.log(review);
+            }
+        },
+        [loading, hasMore]
+    );
     const getperRating = async (productId) => {
         console.log("IN func");
         const starPerRating = await axios({
@@ -78,7 +108,7 @@ const ProductDetailes = () => {
     useEffect(() => {
         console.log(url);
         getProductDetailes();
-    }, []);
+    }, [Reviews]);
     return (
         <div>
             <h1
@@ -180,7 +210,7 @@ const ProductDetailes = () => {
                             </p>
                         </div>
                         <div className="ratingPercentageDivPerRating">
-                            <p>5 star</p>
+                            <p style={{}}>5 star</p>
                             <div className="ParentRatingPercentageDiv">
                                 <div
                                     className="childRatingPercentageDiv"
@@ -188,8 +218,7 @@ const ProductDetailes = () => {
                                         width: `${perRating.five}%`,
                                         height: "100%",
                                     }}
-                                >
-                                </div>
+                                ></div>
                             </div>
                             {perRating.five}%
                         </div>
@@ -202,8 +231,7 @@ const ProductDetailes = () => {
                                         width: `${perRating.four}%`,
                                         height: "100%",
                                     }}
-                                >
-                                </div>
+                                ></div>
                             </div>
                             {perRating.four}%
                         </div>
@@ -216,8 +244,7 @@ const ProductDetailes = () => {
                                         width: `${perRating.three}%`,
                                         height: "100%",
                                     }}
-                                >
-                                </div>
+                                ></div>
                             </div>
                             {perRating.three}%
                         </div>
@@ -230,8 +257,7 @@ const ProductDetailes = () => {
                                         width: `${perRating.two}%`,
                                         height: "100%",
                                     }}
-                                >
-                                </div>
+                                ></div>
                             </div>
                             {perRating.two}%
                         </div>
@@ -244,8 +270,7 @@ const ProductDetailes = () => {
                                         width: `${perRating.one}%`,
                                         height: "100%",
                                     }}
-                                >
-                                </div>
+                                ></div>
                             </div>
                             {perRating.one}%
                         </div>
@@ -264,8 +289,91 @@ const ProductDetailes = () => {
                 </div>
                 <div className="productDetailesReviewsDiv2">
                     <h1>Reviews: </h1>
+                    <hr />
+                    {Reviews.length === 0 ? (
+                        <div>
+                            <h1>No Reviews for this product!</h1>
+                        </div>
+                    ) : (
+                        Reviews.map((item, idx) => {
+                            if (Reviews.length === idx + 1) {
+                                return (
+                                    <div
+                                        className="ProductReviewSectionReviews"
+                                        ref={lastCommentElement}
+                                    >
+                                        <div className="ProductReviewSectionReviewsUser">
+                                            <Avatar>
+                                                {item.userId === null
+                                                    ? item.googleUserId
+                                                          .username[0]
+                                                    : item.userId.username[0]}
+                                            </Avatar>
+
+                                            <p>
+                                                {item.userId === null
+                                                    ? item.googleUserId.username
+                                                    : item.userId.username}
+                                            </p>
+                                        </div>
+                                        <div className="ProductReviewSectionReviewsHeading">
+                                            <Rating
+                                                value={item.rating}
+                                                readOnly
+                                            ></Rating>
+                                            <p>{item.heading}</p>
+                                        </div>
+                                        <div className="ProductReviewSectionReviewsDate">
+                                            <p>Reaviewed On:</p>
+                                            {item.createdAt}
+                                        </div>
+                                        <div className="ProductReviewSectionReviewsReviewDesc">
+                                            {item.desc}
+                                        </div>
+                                    </div>
+                                );
+                            } else {
+                                return (
+                                    <div className="ProductReviewSectionReviews">
+                                        <div className="ProductReviewSectionReviewsUser">
+                                            <Avatar>
+                                                {item.userId === null
+                                                    ? item.googleUserId
+                                                          .username[0]
+                                                    : item.userId.username[0]}
+                                            </Avatar>
+
+                                            <p>
+                                                {item.userId === null
+                                                    ? item.googleUserId.username
+                                                    : item.userId.username}
+                                            </p>
+                                        </div>
+                                        <div className="ProductReviewSectionReviewsHeading">
+                                            <Rating
+                                                value={item.rating}
+                                                readOnly
+                                            ></Rating>
+                                            <p>{item.heading}</p>
+                                        </div>
+                                        <div className="ProductReviewSectionReviewsDate">
+                                            <p>Reaviewed On:</p>
+                                            {item.createdAt}
+                                        </div>
+                                        <div className="ProductReviewSectionReviewsReviewDesc">
+                                            {item.desc}
+                                        </div>
+                                    </div>
+                                );
+                            }
+                        })
+                    )}
                 </div>
             </div>
+                {loading ? <CircularProgress style={{
+                display: "block",
+                    margin: "auto",
+                }}></CircularProgress> : null}
             {ReviewBackDropOpen ? (
                 <ProductReview
                     product={product}

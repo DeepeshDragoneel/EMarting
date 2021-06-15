@@ -37,6 +37,8 @@ router.post("/auth/login", authController.postLogin);
 
 router.get("/getRatingPerStar/:query", productController.getRatingPerStar);
 
+router.get("/review", productController.getReview);
+
 router.post("/comment", productController.postComment);
 
 router.get("/shop", productController.getProducts);
