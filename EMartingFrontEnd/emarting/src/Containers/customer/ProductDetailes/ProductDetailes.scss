@@ -23,3 +23,56 @@
             object-fit: contain;
         }
 }
+
+.productDetailesReviewsDiv{
+    display: flex;
+    margin: 1rem;
+    margin-top: 3rem;
+    margin-right: 3rem;
+    .productDetailesReviewsDiv1{
+        width: 30%;
+        // border: green 1px solid;
+        text-align: start;
+        h3{
+            font-size: 1.2rem;
+        }
+        p{
+            font-size: 0.8rem;
+        }
+        button{
+            width: 100%;
+        }
+        .ratingPercentageDivPerRating{
+            display: flex;
+            flex-direction: row;
+            p{
+                font-size: 1rem;
+            }
+        }
+        .productDetailesReviewsDiv1Rating{
+            // border: black 1px solid;
+            height: fit-content;
+            h1{
+                font-size: 1.5rem !important;
+            }
+            .ParentRatingPercentageDiv{
+                display: inline-block;
+                border: black 1px solid;
+                height: 1.4rem;
+                width: 70%;
+                margin: 0 10px 0 10px;
+                .childRatingPercentageDiv{
+                    background-color: gold;
+                    border: black 1px solid;
+                }
+            }
+        }
+    }
+    .productDetailesReviewsDiv2{
+        margin-left: 1rem;
+        h1{
+            font-size: 1.3rem;
+            margin-left: 1rem;
+        }
+    }
+}

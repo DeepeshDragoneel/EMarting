@@ -35,6 +35,10 @@ router.post("/auth/googleLogIn", authController.postGoogleLoginIn);
 
 router.post("/auth/login", authController.postLogin);
 
+router.get("/getRatingPerStar/:query", productController.getRatingPerStar);
+
+router.post("/comment", productController.postComment);
+
 router.get("/shop", productController.getProducts);
 
 router.get("/shop/detailes/:id", productController.getProductInfo);

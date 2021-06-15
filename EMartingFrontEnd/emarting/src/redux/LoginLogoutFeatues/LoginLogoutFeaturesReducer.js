@@ -27,7 +27,7 @@ const checkAuthorization = async (token) => {
 const LoginLogoutFeaturesReducer = (state = initialState, action) => {
     const token = localStorage.getItem("JWT");
     let username = localStorage.getItem("username");
-    if (username.length > 12) {
+    if (username !==undefined && username !==null && username.length > 12) {
         username = username.substring(0, 12);
         username = username.concat("...");
     }

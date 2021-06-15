@@ -4,6 +4,7 @@ const Cart = require("../models/cart");
 const mongodb = require("mongodb");
 const User = require("../models/user");
 const UserGoogle = require("../models/userGoogle");
+const Comment = require("../models/comments");
 const fs = require("fs");
 const Order = require("../models/order");
 const PaytmChecksum = require("../routes/PaytmCheckSum");
@@ -18,6 +19,11 @@ const crypto = require("crypto");
 const { cloudinary } = require("../util/cloudinary");
 var FormData = require("form-data");
 
+function round(value, precision) {
+    var multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
+}
+
 const rasorpay = new Razorpay({
     key_id: process.env.REACT_APP_RAZORPAY_KEY_ID,
     key_secret: process.env.REACT_APP_RAZORPAY_SECRET,
@@ -29,11 +35,35 @@ exports.getAddProduct = (req, res, next) => {
     );
 };
 
-exports.postAddProduct = async(req, res, next) => {
+exports.postComment = async (req, res, next) => {
+    try {
+        const comment = new Comment({
+            rating: req.body.rating,
+            heading: req.body.heading,
+            desc: req.body.desc,
+            userId: req.body.userId,
+            productId: req.body.productId,
+        });
+        console.log(comment);
+        const result = await comment.save();
+        const product = await ProductModel.findById(req.body.productId);
+        const rating = (product.rating + req.body.rating) / 2;
+        console.log("RATING: ", round(rating, 1));
+        product.rating = rating;
+        const productResult = await product.save();
+        res.send("SUCCESS");
+    } catch (error) {
+        console.log(error);
+        res.send("ERROR");
+    }
+};
+
+exports.postAddProduct = async (req, res, next) => {
     // console.log("Add Products Controller: ", req);
     // console.log("Add Products Controller: ", req.params);
     try {
-        {/* let fromData = new FormData();
+        {
+            /* let fromData = new FormData();
         fromData.append("file", req.files.file);
         fromData.append("upload_preset", req.body.upload_preset);
         console.log(formData);
@@ -45,8 +75,9 @@ exports.postAddProduct = async(req, res, next) => {
                 "content-type": "multipart/form-data",
             },
         });
-        console.log(result); */}
-        
+        console.log(result); */
+        }
+
         console.log(req.files.file);
         const uploadCloudinary = await cloudinary.uploader.upload(
             req.files.file.tempFilePath,
@@ -83,12 +114,11 @@ exports.postAddProduct = async(req, res, next) => {
                 console.log(error);
                 res.status(400).send("ERROR ADDING PRODUCT TO DB");
             });
-    }
-    catch (error) {
+    } catch (error) {
         console.log("CLOUDINARY ERROR: ", error);
         res.send("ERROR");
     }
-    
+
     /* if (req.files.file !== null) {
         req.files.file.mv(`./uploads/${req.files.file.name}`, (error) => {
             console.log("FILE UPLOAD ERROR: ", error);
@@ -108,13 +138,15 @@ exports.postEditProduct = async (req, res, next) => {
         if (req.body.data.title != undefined && req.files.file !== null) {
             const product = await ProductModel.findById(req.body.data.id);
             console.log("EDITTING PRODUCT:  ", product);
-            const temp = (req.body.data);
+            const temp = req.body.data;
             /* console.log("DELETING: ", `./uploads/${product.image.split("/")[4]}`);
             fs.unlinkSync(`./uploads/${product.image.split("/")[4]}`); */
             let uploadCloudinary = await cloudinary.uploader.destroy(
-                product.image_name, function (error, result) {
+                product.image_name,
+                function (error, result) {
                     console.log(result, error);
-                });
+                }
+            );
             uploadCloudinary = await cloudinary.uploader.upload(
                 req.files.file.tempFilePath,
                 {
@@ -134,8 +166,9 @@ exports.postEditProduct = async (req, res, next) => {
                 (product.quantity = temp.quantity),
                 (product.author = temp.author),
                 (product.image_name = uploadCloudinary.public_id);
-                console.log("AFTER EDITING: ", product);
-            product.save()
+            console.log("AFTER EDITING: ", product);
+            product
+                .save()
                 .then((result) => {
                     console.log(result);
                     console.log("PRODUCT EDITED");
@@ -146,7 +179,7 @@ exports.postEditProduct = async (req, res, next) => {
                     res.status(400).send("ERROR UPDATING THE ITEM");
                 });
         }
-    }catch (error) {
+    } catch (error) {
         console.log("CLOUDINARY ERROR: ", error);
         res.send("ERROR");
     }
@@ -189,7 +222,8 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    console.log("HELLO");
+    console.log("Seding Products");
+    console.log(req.query);
     /* Product.fetchAll((products)=>{
         res.json(products);
     }) */
@@ -201,10 +235,27 @@ exports.getProducts = (req, res, next) => {
     .catch(error=>{
         console.log(error);
     }); */
-    ProductModel.find()
+    let productJson, prductCount;
+    ProductModel.find({ title: { $regex: req.query.query, $options: "i" } })
+        .skip((req.query.pageNumber - 1) * 6)
+        .limit(6)
         .then((products) => {
             console.log("Sending Products!");
-            res.status(202).json(products);
+            productJson = products;
+            ProductModel.count({
+                title: { $regex: req.query.query, $options: "i" },
+            })
+                .then((count) => {
+                    console.log("Sending Products!");
+                    prductCount = count;
+                    res.status(202).json({
+                        products: productJson,
+                        count: prductCount - req.query.pageNumber * 6,
+                    });
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         })
         .catch((error) => {
             console.log(error);
@@ -212,12 +263,6 @@ exports.getProducts = (req, res, next) => {
 };
 
 exports.getProductInfo = (req, res, next) => {
-    /* Product.fetchById(req.params.id, product => {
-        console.log(req.params.id);
-        //console.log(product);
-        res.json(product);
-        console.log("sending product detailes");
-    }) */
     ProductModel.findById(req.params.id)
         .then((product) => {
             // console.log(req.params.id);
@@ -228,6 +273,67 @@ exports.getProductInfo = (req, res, next) => {
         .catch((error) => {
             console.log(error);
         });
+};
+
+exports.getRatingPerStar = async (req, res, next) => {
+    try { 
+        // let mappingStarsRating = { "1": "one", "2": "two", "3": "three", '4': "four", "5":"five" };
+        let ratingPerStar = {
+            one: 0,
+            two: 0,
+            three: 0,
+            four: 0,
+            five: 0,
+        };
+        console.log("getRatingPerStar");
+        console.log(req.params.query);
+        const comments = await Comment.find({ productId: req.params.query });
+        console.log(comments);
+        for (var i = 0; i < comments.length; i++) {
+            if (comments[i].rating === 1) {
+                ratingPerStar = {
+                    ...ratingPerStar,
+                    one: ratingPerStar.one + 1,
+                };
+            }
+            if (comments[i].rating === 2) {
+                ratingPerStar = {
+                    ...ratingPerStar,
+                    two: ratingPerStar.two + 1,
+                };
+            }
+            if (comments[i].rating === 3) {
+                ratingPerStar = {
+                    ...ratingPerStar,
+                    three: ratingPerStar.three + 1,
+                };
+            }
+            if (comments[i].rating === 4) {
+                ratingPerStar = {
+                    ...ratingPerStar,
+                    four: ratingPerStar.four + 1,
+                };
+            }
+            if (comments[i].rating === 5) {
+                ratingPerStar = {
+                    ...ratingPerStar,
+                    five: ratingPerStar.five + 1,
+                };
+            }
+        }
+        console.log(ratingPerStar);
+        const total = ratingPerStar.one + ratingPerStar.two + ratingPerStar.three + ratingPerStar.four + ratingPerStar.five;
+        ratingPerStar.one = (ratingPerStar.one/total)*100;
+        ratingPerStar.two = (ratingPerStar.two/total)*100;
+        ratingPerStar.three = (ratingPerStar.three/total)*100;
+        ratingPerStar.four = (ratingPerStar.four/total)*100;
+        ratingPerStar.five = (ratingPerStar.five/total)*100;
+        console.log(ratingPerStar);
+        res.send(ratingPerStar);
+    } catch (error) {
+        console.log(error);
+        res.send("error");
+    }
 };
 
 exports.addCartProduct = async (req, res, next) => {
@@ -250,7 +356,7 @@ exports.addCartProduct = async (req, res, next) => {
         user.addToCart(req.body.product);
         res.status(200).send("Successfully added to cart!");
     } catch (error) {
-        res.status(400).send("Faaled");
+        res.status(400).send("Failed");
     }
 };
 
