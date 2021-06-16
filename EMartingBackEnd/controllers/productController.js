@@ -5,8 +5,8 @@ const mongodb = require("mongodb");
 const User = require("../models/user");
 const UserGoogle = require("../models/userGoogle");
 const Comment = require("../models/comments");
-const fs = require("fs");
 const Order = require("../models/order");
+const fs = require("fs");
 const PaytmChecksum = require("../routes/PaytmCheckSum");
 const { v4: uuidv4 } = require("uuid");
 const formidable = require("formidable");
@@ -18,6 +18,7 @@ const shortid = require("shortid");
 const crypto = require("crypto");
 const { cloudinary } = require("../util/cloudinary");
 var FormData = require("form-data");
+const jwt = require("jsonwebtoken");
 
 function round(value, precision) {
     var multiplier = Math.pow(10, precision || 0);
@@ -55,8 +56,7 @@ exports.postComment = async (req, res, next) => {
             product.rating = rating;
             const productResult = await product.save();
             res.send("SUCCESS");
-        }
-        else {
+        } else {
             // console.log("googleuser : ",req.body.userId);
             // res.send("Done");
             const comment = new Comment({
@@ -388,11 +388,18 @@ exports.getRatingPerStar = async (req, res, next) => {
             ratingPerStar.three +
             ratingPerStar.four +
             ratingPerStar.five;
-        ratingPerStar.one = ratingPerStar.one === 0 ? (0) : round((ratingPerStar.one / total) * 100,1);
+        ratingPerStar.one =
+            ratingPerStar.one === 0
+                ? 0
+                : round((ratingPerStar.one / total) * 100, 1);
         ratingPerStar.two =
-            ratingPerStar.two === 0 ? 0 : round((ratingPerStar.two / total) * 100, 1);
+            ratingPerStar.two === 0
+                ? 0
+                : round((ratingPerStar.two / total) * 100, 1);
         ratingPerStar.three =
-            ratingPerStar.three === 0 ? 0 : round((ratingPerStar.three / total) * 100,1);
+            ratingPerStar.three === 0
+                ? 0
+                : round((ratingPerStar.three / total) * 100, 1);
         ratingPerStar.four =
             ratingPerStar.four === 0
                 ? 0
@@ -453,23 +460,23 @@ exports.getCartProducts = async (req, res, next) => {
         console.log("----------------------");
         let user;
         user = await User.findById(req.params.id);
-        console.log("USER: ", user);
+        // console.log("USER: ", user);
         if (user === null) {
             user = await UserGoogle.findById(req.params.id);
-            console.log("GOOGLE-USER: ", user);
+            // console.log("GOOGLE-USER: ", user);
         }
         user.populate("cart.items.productId")
             .execPopulate()
             .then((user) => {
-                console.log(user.cart.items);
+                // console.log(user.cart.items);
                 user.cart.items.forEach(function (item) {
-                    console.log(item);
+                    // console.log(item);
                     if (item.productId === null) {
                         console.log("INSIDEIF: ", item);
                         user.deleteCartProduct(item);
                     }
                 });
-                console.log(user.cart.items);
+                // console.log(user.cart.items);
                 res.status(202).send(user.cart.items);
             })
             .catch((error) => {
@@ -707,7 +714,10 @@ exports.postOrder = async (req, res, next) => {
 };
 
 exports.postOrderRazorpay = async (req, res) => {
-    const user = await User.findById(req.body.id);
+    let user = await User.findById(req.body.id);
+    if (user === null) {
+        user = await UserGoogle.findById(req.body.id);
+    }
     const payment_capture = 1;
     console.log(req.body);
     const data = req.body;
@@ -731,6 +741,46 @@ exports.postOrderRazorpay = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+    }
+};
+
+exports.postPaymentSuccessFull = async (req, res, next) => {
+    try {
+        const userToken = jwt.verify(req.body.token, process.env.SECRET_KEY);
+        let user = await User.findById(userToken.userid);
+        if (user === null) {
+            user = await UserGoogle.findById(userToken.userid);
+        }
+
+        console.log("payment succesfull: ", user);
+        const cart = user.cart.items;
+        const products = cart.map((item, idx) => ({
+            product: item.productId,
+            quantity: item.quantity,
+        }));
+        console.log("PRODUCTS ORDERED: ", products);
+        const order = new Order({
+            user: {
+                userId: user.userId,
+                username: user.username,
+            },
+            products: products,
+        });
+        const result = await order.save();
+        // const allProducts = await ProductModel.find({});
+        // console.log("All products: ", allProducts);
+        products.forEach(async (item, idx) => {
+            console.log("FOR EACH :", item);
+            const productModel = await ProductModel.findById(item.product);
+            productModel.quantity = productModel.quantity - item.quantity;
+            // console.log(productModel);
+            const productRes = await productModel.save();
+        });
+        console.log("ORDER: ", order);
+        res.send("result");
+    } catch (errror) {
+        console.log(error);
+        res.send("ERROR");
     }
 };
 

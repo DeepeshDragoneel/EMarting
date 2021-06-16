@@ -22,7 +22,7 @@ exports.checkAuthorization = async (req, res, next) => {
         const token = req.body.token;
         const verifyUser = jwt.verify(token, process.env.SECRET_KEY);
         
-        console.log("In auth: ", req.body);
+        // console.log("In auth: ", req.body);
         // console.log("Verify user: ", verifyUser);
         let user;
         if (verifyUser.googleId != undefined) {
@@ -35,7 +35,7 @@ exports.checkAuthorization = async (req, res, next) => {
                 email: verifyUser.email,
             });
         }
-        console.log(user);
+        // console.log(user);
         res.json(user);
 
     } catch (error) {
@@ -44,7 +44,7 @@ exports.checkAuthorization = async (req, res, next) => {
 };
 
 exports.postGoogleLoginIn = async (req, res, next) => {
-    console.log(req.body.data);
+    // console.log(req.body.data);
     try {
         const userGoogle = await UserGoogle.findOne({ email: req.body.data.profileObj.email })
         if (userGoogle == undefined) {

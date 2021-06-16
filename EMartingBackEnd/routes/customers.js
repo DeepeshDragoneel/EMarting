@@ -39,6 +39,8 @@ router.get("/getRatingPerStar/:query", productController.getRatingPerStar);
 
 router.get("/review", productController.getReview);
 
+router.post("/paymentSuccessFull", productController.postPaymentSuccessFull);
+
 router.post("/comment", productController.postComment);
 
 router.get("/shop", productController.getProducts);
