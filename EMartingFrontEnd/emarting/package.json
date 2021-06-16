@@ -1,67 +1,71 @@
 {
-  "name": "emarting",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.35",
-    "@fortawesome/free-solid-svg-icons": "^5.15.3",
-    "@fortawesome/react-fontawesome": "^0.1.14",
-    "@material-ui/core": "^4.11.3",
-    "@material-ui/icons": "^4.11.2",
-    "@material-ui/lab": "^4.0.0-alpha.58",
-    "@material-ui/styles": "^4.11.3",
-    "@testing-library/jest-dom": "^5.11.10",
-    "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^12.8.3",
-    "aos": "^2.3.4",
-    "axios": "^0.21.1",
-    "bootstrap": "^4.6.0",
-    "dotenv": "^8.2.0",
-    "font-awesome": "^4.7.0",
-    "jquery": "^3.6.0",
-    "jwt-decode": "^3.1.2",
-    "mdbreact": "^5.0.1",
-    "node-sass": "^4.14.1",
-    "react": "^17.0.2",
-    "react-background-animation": "^1.0.1",
-    "react-bootstrap": "^1.6.1",
-    "react-dom": "^17.0.2",
-    "react-google-login": "^5.2.2",
-    "react-hook-form": "^7.0.0",
-    "react-icons": "^4.2.0",
-    "react-rating": "^2.0.5",
-    "react-redux": "^7.2.4",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
-    "react-tsparticles": "^1.26.4",
-    "reactstrap": "^8.9.0",
-    "redux-devtools-extension": "^2.13.9",
-    "redux-logger": "^3.0.6",
-    "web-vitals": "^1.1.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {}
+    "name": "emarting",
+    "version": "0.1.0",
+    "private": true,
+    "homepage": "https://github.com/DeepeshDragoneel/EMarting",
+    "dependencies": {
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d run build",
+        "@fortawesome/fontawesome-svg-core": "^1.2.35",
+        "@fortawesome/free-solid-svg-icons": "^5.15.3",
+        "@fortawesome/react-fontawesome": "^0.1.14",
+        "@material-ui/core": "^4.11.3",
+        "@material-ui/icons": "^4.11.2",
+        "@material-ui/lab": "^4.0.0-alpha.58",
+        "@material-ui/styles": "^4.11.3",
+        "@testing-library/jest-dom": "^5.11.10",
+        "@testing-library/react": "^11.2.5",
+        "@testing-library/user-event": "^12.8.3",
+        "aos": "^2.3.4",
+        "axios": "^0.21.1",
+        "bootstrap": "^4.6.0",
+        "dotenv": "^8.2.0",
+        "font-awesome": "^4.7.0",
+        "gh-pages": "^3.2.1",
+        "jquery": "^3.6.0",
+        "jwt-decode": "^3.1.2",
+        "mdbreact": "^5.0.1",
+        "node-sass": "^4.14.1",
+        "react": "^17.0.2",
+        "react-background-animation": "^1.0.1",
+        "react-bootstrap": "^1.6.1",
+        "react-dom": "^17.0.2",
+        "react-google-login": "^5.2.2",
+        "react-hook-form": "^7.0.0",
+        "react-icons": "^4.2.0",
+        "react-rating": "^2.0.5",
+        "react-redux": "^7.2.4",
+        "react-router-dom": "^5.2.0",
+        "react-scripts": "4.0.3",
+        "react-tsparticles": "^1.26.4",
+        "reactstrap": "^8.9.0",
+        "redux-devtools-extension": "^2.13.9",
+        "redux-logger": "^3.0.6",
+        "web-vitals": "^1.1.1"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {}
 }
