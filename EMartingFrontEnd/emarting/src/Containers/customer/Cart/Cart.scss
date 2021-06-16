@@ -1,5 +1,6 @@
 .cartProductDetailesTotal {
     display: flex;
+    // flex-wrap: wrap;
     img {
         width: 20rem;
     }
@@ -15,17 +16,28 @@
             max-height: 100%;
             object-fit: contain;
         }
+        @media screen and (max-width: 580px) {
+            height: 150px;
+            width: 150px;
+        }
     }
     .cartProductDetailes {
-        // border: black 2px solid;
+        // border: green 2px solid;
         display: flex;
+        text-align: start;
         flex-direction: column;
         width: 100%;
+        word-wrap: wrap;
         .cartProductTitlePrice {
+            // border: orange 2px solid;
+            justify-content: space-between;
+            flex-direction: row;
             // border: red 2px solid;
             height: fit-content;
             width: 100%;
             display: flex;
+            flex-wrap: wrap;
+            overflow-wrap: break-word;
             margin: 1rem auto auto auto;
             .cartProductTitleLink {
                 display: flex;
@@ -33,24 +45,49 @@
                 color: black;
                 width: fit-content;
                 height: fit-content;
-                margin-left: 2rem;
+                word-wrap: wrap;
+                @media screen and (max-width: 591px) {
+                    margin-left: 0;
+                }
                 &:hover {
                     color: hotpink;
                 }
                 .cartProductTitle {
+                    // border: orange 2px solid;
                     font-weight: 400;
+                    min-width: 20rem;
+                    @media screen and (max-width: 591px) {
+                        min-width: 0;
+                        font-size: 1.2rem;
+                        margin-left: 0rem;
+                    }
                 }
             }
             .cartProductPrice {
-                margin: auto 2rem auto auto;
+                margin: 2rem;
+                margin-top: 0rem;
+                @media screen and (max-width: 591px) {
+                    font-size: 1.2rem;
+                }
             }
         }
         .cartProductDetiales2 {
-            // border: green 2px solid;
-            margin-left: 2rem;
+            // border: orange 2px solid;
             display: flex;
-            align-items: center;
+            align-items: baseline;
             height: fit-content;
+            flex-wrap: wrap;
+            @media screen and (max-width:548px){
+                flex-direction: row;
+            }
+            button {
+                background-color: #fb3a3a;
+                max-height: 2.5rem;
+                margin-left: 4rem;
+                @media screen and (max-width: 440px) {
+                    margin: 0;
+                }
+            }
         }
     }
 }

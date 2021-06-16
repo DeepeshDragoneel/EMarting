@@ -329,6 +329,7 @@ exports.getProductInfo = (req, res, next) => {
             // console.log(product);
             res.status(202).json(product);
             console.log("SENDING PRODUCT DETAILS!");
+            console.log(product);
         })
         .catch((error) => {
             console.log(error);
@@ -746,6 +747,7 @@ exports.postOrderRazorpay = async (req, res) => {
 
 exports.postPaymentSuccessFull = async (req, res, next) => {
     try {
+        console.log("postPaymentSuccessFull: ", req.body);
         const userToken = jwt.verify(req.body.token, process.env.SECRET_KEY);
         let user = await User.findById(userToken.userid);
         if (user === null) {
@@ -765,7 +767,12 @@ exports.postPaymentSuccessFull = async (req, res, next) => {
                 username: user.username,
             },
             products: products,
+            address: req.body.location.Address,
+            zipCode: req.body.location.ZIP,
+            phoneNo: req.body.location.PhoneNumber,
+            city: req.body.location.City
         });
+        console.log("ORDER: ", order);
         const result = await order.save();
         // const allProducts = await ProductModel.find({});
         // console.log("All products: ", allProducts);
@@ -777,8 +784,8 @@ exports.postPaymentSuccessFull = async (req, res, next) => {
             const productRes = await productModel.save();
         });
         console.log("ORDER: ", order);
-        res.send("result");
-    } catch (errror) {
+        res.send(result);
+    } catch (error) {
         console.log(error);
         res.send("ERROR");
     }

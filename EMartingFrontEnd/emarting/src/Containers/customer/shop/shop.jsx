@@ -67,6 +67,12 @@ const Shop = () => {
         history.push(path);
     };
 
+    const orderSingleItem = (item) => {
+        console.log("ORDERING SINGLE ITEM");
+        let path = `../order/${item._id}`
+        history.push(path);
+    }
+
     const checkAuthorization = async (token) => {
         try {
             const result = await axios({
@@ -241,6 +247,7 @@ const Shop = () => {
                                                 class="btn btn-outline-success"
                                                 onClick={() => {
                                                     if (userLoggedIn === true) {
+                                                        orderSingleItem(item);
                                                     } else {
                                                         routeChange();
                                                     }
@@ -336,6 +343,7 @@ const Shop = () => {
                                                 class="btn btn-outline-success"
                                                 onClick={() => {
                                                     if (userLoggedIn === true) {
+                                                        orderSingleItem(item);
                                                     } else {
                                                         routeChange();
                                                     }

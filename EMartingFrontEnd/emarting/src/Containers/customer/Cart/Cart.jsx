@@ -21,9 +21,7 @@ const useStyles = makeStyles((theme) => ({
         marginTop: theme.spacing(2),
     },
     button: {
-        backgroundColor: "#fb3a3a",
-        maxHeight: "2.5rem",
-        marginLeft: "4rem",
+        
     },
 }));
 
@@ -213,6 +211,7 @@ const Cart = () => {
                                                                 </h4>
                                                             </Link>
 
+                                                        </div>
                                                             <div className="cartProductPrice">
                                                                 <h4>
                                                                     ₹
@@ -222,20 +221,19 @@ const Cart = () => {
                                                                         ele.quantity}
                                                                 </h4>
                                                             </div>
-                                                        </div>
                                                         <h2
                                                             style={{
+                                                                fontWeight: "500",
+
                                                                 fontSize:
-                                                                    "1.2rem",
+                                                                    "0.9rem",
                                                                 alignSelf:
                                                                     "start",
-                                                                marginLeft:
-                                                                    "2.2rem",
                                                                 marginBottom:
                                                                     "1rem",
                                                             }}
                                                         >
-                                                            Genre
+                                                            <i>{ele.productId.genre}</i>
                                                         </h2>
                                                         <div className="cartProductDetiales2">
                                                             <p>
@@ -296,7 +294,7 @@ const Cart = () => {
                                         width: "10rem"
                                     }}
                                 onClick={() => {
-                                    orderCartItems();
+                                    // orderCartItems();
                                     routeChange();
                                 }}
                             >

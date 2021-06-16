@@ -21,6 +21,22 @@ const OrderSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: "User"
         }
+    },
+    city: {
+        type: String,
+        required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    zipCode: {
+        type: String,
+        required: true,
+    },
+    phoneNo: {
+        type: String,
+        required: true,
     }
 })
 

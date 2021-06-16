@@ -129,7 +129,7 @@ const NavBar = (props) => {
     const LoginLogoutFeatuesDispatch = useDispatch();
     return (
         <div>
-            <Navbar color="light" light expand="md">
+            <Navbar color="light" light expand="md" style={{ padding: "10px" }}>
                 <a
                     className="navbar-brand"
                     href="/"
@@ -172,28 +172,38 @@ const NavBar = (props) => {
                                 Home
                             </NavLink>
                         </NavItem>
-                        <NavItem>
-                            <NavLink
-                                exact
-                                activeClassName="linkIsActive"
-                                className="nav-link"
-                                aria-current="page"
-                                to="/admin/addProduct"
-                            >
-                                Add Products
-                            </NavLink>
-                        </NavItem>
-                        <NavItem>
-                            <NavLink
-                                exact
-                                activeClassName="linkIsActive"
-                                className="nav-link"
-                                aria-current="page"
-                                to="/admin/shop"
-                            >
-                                Admin Products
-                            </NavLink>
-                        </NavItem>
+                        {userLoggedIn === true ? (
+                            <>
+                                <NavItem>
+                                    <NavLink
+                                        exact
+                                        activeClassName="linkIsActive"
+                                        className="nav-link"
+                                        aria-current="page"
+                                        style={{
+                                            whiteSpace: "nowrap",
+                                        }}
+                                        to="/admin/addProduct"
+                                    >
+                                        Add Products
+                                    </NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink
+                                        exact
+                                        activeClassName="linkIsActive"
+                                        className="nav-link"
+                                        aria-current="page"
+                                        to="/admin/shop"
+                                        style={{
+                                            whiteSpace: "nowrap",
+                                        }}
+                                    >
+                                        Admin Products
+                                    </NavLink>
+                                </NavItem>
+                            </>
+                        ) : null}
                         <NavItem>
                             <NavLink
                                 exact
@@ -237,17 +247,28 @@ const NavBar = (props) => {
                                 style={{
                                     width: "fit-content",
                                     fontWeight: "400",
-                                    color: "black"
+                                    color: "black",
+                                    alignSelf: "center",
                                 }}
                             >
-                                <DropdownToggle nav caret style={{
-                                    color: "black"
-                                }}>
+                                <DropdownToggle
+                                    nav
+                                    caret
+                                    style={{
+                                        color: "black",
+                                        alignSelf: "center",
+                                        fontSize: "1rem",
+                                    }}
+                                >
                                     {`Hello ${username}`}
                                 </DropdownToggle>
-                                <DropdownMenu right>
-                                    <DropdownItem>Option 1</DropdownItem>
-                                    <DropdownItem>Option 2</DropdownItem>
+                                <DropdownMenu
+                                    right
+                                    style={{
+                                        position: "absolute",
+                                    }}
+                                >
+                                    <DropdownItem>Orders</DropdownItem>
                                     <DropdownItem divider />
                                     <DropdownItem
                                         style={{
