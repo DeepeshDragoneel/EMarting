@@ -160,6 +160,14 @@ const ProductDetailes = () => {
                         </div>
                         <p>Product Id: {product._id}</p>
                         <h4>₹{product.price}</h4>
+                        <p
+                            style={{
+                                fontSize: "0.8rem",
+                                color: "rgba(109, 109, 109, 1)",
+                            }}
+                        >
+                            Only {product.quantity} Left
+                        </p>
                         <p style={{}}>{product.desc}</p>
                         <div
                             style={{
@@ -370,10 +378,14 @@ const ProductDetailes = () => {
                     )}
                 </div>
             </div>
-                {loading ? <CircularProgress style={{
-                display: "block",
-                    margin: "auto",
-                }}></CircularProgress> : null}
+            {loading ? (
+                <CircularProgress
+                    style={{
+                        display: "block",
+                        margin: "auto",
+                    }}
+                ></CircularProgress>
+            ) : null}
             {ReviewBackDropOpen ? (
                 <ProductReview
                     product={product}

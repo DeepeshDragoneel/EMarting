@@ -31,6 +31,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-tsparticles": "^1.26.4",
+    "reactstrap": "^8.9.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "web-vitals": "^1.1.1"

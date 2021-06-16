@@ -8,6 +8,7 @@ import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 import { successIcon } from "../../../../assets/successIcon.svg";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ConformationPage from './ConformationPage/ConformationPage';
+import axios from "axios";
 
 const steps = ["Shipping Address", "Payment Details"];
 
@@ -31,7 +32,20 @@ const CheckOut = (props) => {
       nextStep();
     }
 
-    const paymentSuccess = () => {
+  const paymentSuccess = async() => {
+    console.log("Payment Successfull!");
+    const token = localStorage.getItem("JWT");
+    const result = await axios({
+        method: "POST",
+        url: "http://localhost:8000/paymentSuccessFull",
+        headers: {
+            "content-type": "application/json",
+            accept: "application/json",
+      },
+        data: JSON.stringify({token: token
+        })
+    });
+    console.log(result);
       nextStep();
     }
 

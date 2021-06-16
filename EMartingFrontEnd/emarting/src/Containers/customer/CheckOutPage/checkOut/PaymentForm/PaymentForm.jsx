@@ -130,13 +130,13 @@ const PaymentForm = (props) => {
           totalPrice: totalPrice,
         }),
       });
-      console.log(result);
+      console.log("displayRazorPay: ",result);
       const options = {
         key: "rzp_test_lYvwV7s3QyvsZv", //process.env.REACT_APP_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
         amount: result.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
         currency: result.data.currency,
         name: "EMarting",
-        description: "The order will be placed after the Payment!",
+        description: "(This is In test mode, money won't we deducted in real!)",
         image: { shopIcon },
         order_id: result.data.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
         handler: function (response) {
