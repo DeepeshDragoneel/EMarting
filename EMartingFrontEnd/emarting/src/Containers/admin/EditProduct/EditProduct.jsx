@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import './EditProduct.scss';
-import axios from 'axios';
-import NavBar from '../../../Components/NavBar/NavBar';
-import { useParams } from 'react-router';
-import { NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import "./EditProduct.scss";
+import axios from "axios";
+import NavBar from "../../../Components/NavBar/NavBar";
+import { useParams } from "react-router";
+import { NavLink } from "react-router-dom";
 import SelectFinder from "../../../Components/SelectFinder/SelectFinder";
 import bookGenre from "../../../assets/bookGenre.json";
 
@@ -17,9 +17,9 @@ const useStyles = makeStyles({
         "&:hover": {
             backgroundColor: "#c1fcff",
             color: "black",
-        }
-    } 
-})
+        },
+    },
+});
 
 const EditProduct = (props) => {
     const [editProductInfo, seteditProductInfo] = useState(useParams());
@@ -107,10 +107,10 @@ const EditProduct = (props) => {
     let temp;
 
     const getProductInfo = (editProductInfo) => {
-            axios
-              .get(`http://localhost:8000/admin/editProduct/${editProductInfo}`)
-              .then((res) => {
-                temp = (res.data);
+        axios
+            .get(`http://localhost:8000/admin/editProduct/${editProductInfo}`)
+            .then((res) => {
+                temp = res.data;
                 console.log(temp);
                 setproduct(temp);
                 console.log(product);
@@ -123,59 +123,58 @@ const EditProduct = (props) => {
                     pages: temp.pages,
                     quantity: temp.quantity,
                     author: temp.author,
-                })
-              })
-              .catch((error) => {
+                });
+            })
+            .catch((error) => {
                 console.log(error);
-              });
-            // const data = await res;
-            // setproduct(data);
-            // console.log(data);
-            // console.log(product);
-    }
+            });
+        // const data = await res;
+        // setproduct(data);
+        // console.log(data);
+        // console.log(product);
+    };
 
-    const checkAuthorization = async(token) => {
-      try {
-        const result = await axios({
-          method: "POST",
-          url: "http://localhost:8000/auth",
-          headers: {
-            "content-type": "application/json",
-            accept: "application/json",
-          },
-          data: JSON.stringify({
-            "token": token
-          })
-        });
-        console.log(result.data._id);
-        return result.data._id;
-      } catch (error) {
-        console.log(error);
-      }
-    }
+    const checkAuthorization = async (token) => {
+        try {
+            const result = await axios({
+                method: "POST",
+                url: "http://localhost:8000/auth",
+                headers: {
+                    "content-type": "application/json",
+                    accept: "application/json",
+                },
+                data: JSON.stringify({
+                    token: token,
+                }),
+            });
+            console.log(result.data._id);
+            return result.data._id;
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-    const sendEditProductInfo = async() => {
+    const sendEditProductInfo = async () => {
         console.log("Product Info from Admin Edit Products:");
         console.log(productDetails);
 
-        try{
+        try {
             const result = await axios({
-              method: "POST",
-              url: "http://localhost:8000/admin/editProduct",
-              headers: {
-                "content-type": "application/json",
-                accept: "application/json",
-              },
-              data: JSON.stringify({ data: productDetails }),
+                method: "POST",
+                url: "http://localhost:8000/admin/editProduct",
+                headers: {
+                    "content-type": "application/json",
+                    accept: "application/json",
+                },
+                data: JSON.stringify({ data: productDetails }),
             });
             console.log(result);
-        }
-        catch(e){
+        } catch (e) {
             console.log(e);
         }
-    }
+    };
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         let data = new FormData();
         const detailes = {
@@ -195,12 +194,12 @@ const EditProduct = (props) => {
             const token = localStorage.getItem("JWT");
             const id = await checkAuthorization(token);
             const result = await axios({
-              method: "post",
-              url: `http://localhost:8000/admin/editProduct`,
-              data: data,
-              headers: {
-                "content-type": "multipart/form-data",
-              },
+                method: "post",
+                url: `http://localhost:8000/admin/editProduct`,
+                data: data,
+                headers: {
+                    "content-type": "multipart/form-data",
+                },
             });
             console.log(result.data);
             setproductDetails({
@@ -212,16 +211,15 @@ const EditProduct = (props) => {
                 quantity: 0,
                 pages: 0,
             });
-        }
-        catch (error) {
+        } catch (error) {
             console.log(error);
         }
-    }
+    };
 
     useEffect(() => {
         console.log(editProductInfo.id);
         getProductInfo(editProductInfo.id);
-    }, [])
+    }, []);
 
     return (
         <div>
@@ -384,17 +382,20 @@ const EditProduct = (props) => {
                         margin: "3rem",
                     }}
                 >
-                    {/* <NavLink to="../shop" style={{
-                        textDecoration: "none",
-                        fontSize: "inherit",
-                        color: "inherit"
-                    }}>
-                    </NavLink> */}
-                    Edit Product
+                    <NavLink
+                        to="../shop"
+                        style={{
+                            textDecoration: "none",
+                            fontSize: "inherit",
+                            color: "inherit",
+                        }}
+                    >
+                        Edit Product
+                    </NavLink>
                 </Button>
             </form>
         </div>
     );
-}
+};
 
 export default EditProduct;

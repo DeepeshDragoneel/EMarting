@@ -33,7 +33,12 @@ const AdminShop = () => {
     const history = useHistory();
     const [query, setquery] = useState("");
     const [pageNumber, setpageNumber] = useState(1);
-    const { loading, error, hasMore, Products } = SearchHook(query, pageNumber);
+    const { loading, error, hasMore, Products } = SearchHook(
+        query,
+        pageNumber,
+        setpageNumber,
+        deleteProduct
+    );
     const lastBookRef = useRef();
     const lastBookElement = useCallback(
         (book) => {
@@ -82,10 +87,11 @@ const AdminShop = () => {
                 },
                 data: JSON.stringify({ data: item }),
             });
-            console.log(result);
             setdeleteProduct((p) => {
                 return !p;
             });
+            setpageNumber(1);
+            console.log(result);
             console.log(deleteProduct);
         } catch (error) {
             console.log(error);
@@ -93,7 +99,7 @@ const AdminShop = () => {
     };
 
     useEffect(() => {
-        // getProducts();
+        
     }, [deleteProduct]);
 
     return (
@@ -295,6 +301,9 @@ const AdminShop = () => {
                                                 class="btn btn-outline-danger"
                                                 onClick={() => {
                                                     sendDeleteItem(item);
+                                                    setdeleteProduct((p) => {
+                                                        return !p;
+                                                    });
                                                 }}
                                             >
                                                 Delete <AiFillDelete />

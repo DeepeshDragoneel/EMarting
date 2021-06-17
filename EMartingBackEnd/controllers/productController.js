@@ -466,22 +466,23 @@ exports.getCartProducts = async (req, res, next) => {
             user = await UserGoogle.findById(req.params.id);
             // console.log("GOOGLE-USER: ", user);
         }
+        console.log("Cart user: ", user);
         user.populate("cart.items.productId")
             .execPopulate()
             .then((user) => {
-                // console.log(user.cart.items);
+                console.log(user.cart.items);
                 user.cart.items.forEach(function (item) {
-                    // console.log(item);
+                    console.log("item :",item);
                     if (item.productId === null) {
                         console.log("INSIDEIF: ", item);
                         user.deleteCartProduct(item);
                     }
                 });
-                // console.log(user.cart.items);
+                console.log(user.cart.items);
                 res.status(202).send(user.cart.items);
             })
             .catch((error) => {
-                console.log(error);
+                console.log("Error Getting cart item!: ",error);
             });
     } catch (error) {
         res.send("Error Getting cart item!");

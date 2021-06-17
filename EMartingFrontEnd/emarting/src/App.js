@@ -46,8 +46,8 @@ function App() {
             <Route path="/signUp/:msg?" component={SignUpPage}></Route>
           </>
         ) : null}
+        <Route exact path="/EMarting" component={HomePage}></Route>
         <Route component={ErrorPage}></Route>
-        {/* <Route exact path="/" component={HomePage}></Route> */}
       </Switch>
     </div>
   );

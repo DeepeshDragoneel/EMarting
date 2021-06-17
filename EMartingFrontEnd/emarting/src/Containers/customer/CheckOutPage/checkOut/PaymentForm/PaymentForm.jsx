@@ -4,6 +4,7 @@ import Review from "../Review";
 import { Typography, Button, Divider } from "@material-ui/core";
 import shopIcon from "../../../../../assets/icon.png";
 import { useSelector, useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 function loadRazorPay(src) {
     return new Promise((resolve) => {
@@ -22,7 +23,7 @@ function loadRazorPay(src) {
 const PaymentForm = (props) => {
     const [userId, setuserId] = useState();
     const [totalPrice, settotalPrice] = useState(0);
-
+    const h = useHistory();
     const [cartProducts, setcartProducts] = useState([]);
 
     function isDate(val) {
@@ -92,6 +93,7 @@ const PaymentForm = (props) => {
             if (token === null) {
                 setcartProducts(null);
             } else {
+                console.log("GETTING cart PRODUCTS!");
                 const id = await checkAuthorization(token);
                 console.log("id: ", userId);
                 const result = await axios.get(
@@ -145,8 +147,8 @@ const PaymentForm = (props) => {
             order_id: result.data.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
             handler: function (response) {
                 /* alert(response.razorpay_payment_id);
-          alert(response.razorpay_order_id);
-          alert(response.razorpay_signature); */
+                alert(response.razorpay_order_id);
+                alert(response.razorpay_signature); */
                 console.log(response);
                 props.paymentSuccess();
             },
@@ -162,6 +164,16 @@ const PaymentForm = (props) => {
             },
         };
         var paymentObject = new window.Razorpay(options);
+        paymentObject.on("payment.failed", function (response) {
+            alert("Payment failed redirecting to shop!");
+            if (props.productId === undefined) {
+                paymentObject.close();
+                h.push("../shop");
+            } else {
+                paymentObject.close();
+                h.push("../../shop");
+            }
+        });
         paymentObject.open();
     };
 
@@ -218,13 +230,18 @@ const PaymentForm = (props) => {
             console.log(error);
         }
     };
+    
+    const getProduct = async () => {
+        console.log("props.productId: ",props.productId);
+        if (props.productId === undefined) {
+            getCartItems();
+        } else {
+            getSingleProduct(props.productId);
+        }
+    }
 
     useEffect(() => {
-        {
-            props.productId === null
-                ? getCartItems()
-                : getSingleProduct(props.productId);
-        }
+        getProduct();
     }, []);
 
     return (
