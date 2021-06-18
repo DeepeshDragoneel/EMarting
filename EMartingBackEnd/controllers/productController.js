@@ -420,13 +420,6 @@ exports.getRatingPerStar = async (req, res, next) => {
 exports.addCartProduct = async (req, res, next) => {
     try {
         console.log("ADDING PRODUCT TO CART");
-        //console.log(req.body);
-        // if(req.body.productId != undefined){
-        // }
-        // else{
-        //     console.log(req);
-        // }
-        // Cart.addProduct(req.body.product);
         console.log(req.params);
         console.log(req.body.product);
         let user = await User.findById(req.params.id);
@@ -466,23 +459,52 @@ exports.getCartProducts = async (req, res, next) => {
             user = await UserGoogle.findById(req.params.id);
             // console.log("GOOGLE-USER: ", user);
         }
-        console.log("Cart user: ", user);
+        // console.log("Cart user: ", user);
+        let item_temp = null;
         user.populate("cart.items.productId")
             .execPopulate()
             .then((user) => {
-                console.log(user.cart.items);
-                user.cart.items.forEach(function (item) {
-                    console.log("item :",item);
+                // console.log(user.cart.items);
+                user.cart.items.forEach(async (item) => {
+                    // console.log("item :",item);
                     if (item.productId === null) {
                         console.log("INSIDEIF: ", item);
                         user.deleteCartProduct(item);
                     }
+                    // const originalProduct = await ProductModel.findById(item.productId);
+                    if (item.quantity > item.productId.quantity) {
+                        console.log("more than original product");
+                        item_temp = user.decrementQuantity(item);
+                    }
+                    if (item.productId.quantity === 0) {
+                        user.deleteCartProduct(item);
+                    }
                 });
-                console.log(user.cart.items);
-                res.status(202).send(user.cart.items);
+                // console.log(user.cart.items);
+                if (item_temp !== null) {
+                    user.cart.items = user.cart.items.filter((item) => {
+                        /* console.log(
+                            item._id.toString() !== item_temp._id.toString(),
+                            " ",
+                            item._id != item_temp._id,
+                            " ",
+                            item._id, " ", item_temp._id
+                        ); */
+                        return item._id.toString() !== item_temp._id.toString();
+                    });
+                    user.cart.items.push(item_temp);
+                    console.log(
+                        "user.cart.items after change: ",
+                        user.cart.items
+                    );
+                    console.log("item_temp: ", item_temp);
+                    res.status(202).send(user.cart.items);
+                } else {
+                    res.status(202).send(user.cart.items);
+                }
             })
             .catch((error) => {
-                console.log("Error Getting cart item!: ",error);
+                console.log("Error Getting cart item!: ", error);
             });
     } catch (error) {
         res.send("Error Getting cart item!");
@@ -491,15 +513,15 @@ exports.getCartProducts = async (req, res, next) => {
 
 exports.deleteCartItem = async (req, res, next) => {
     try {
-        // Cart.delete(req.body.data);
         console.log("DELETING THE CART ITEM");
+        console.log(req.body.data);
         let user;
         user = await User.findById(req.params.id);
         //console.log("DeleteCartItems: ",user);
         if (user === null) {
             user = await UserGoogle.findById(req.params.id);
         }
-        user.deleteCartProduct(req.body.data);
+        user.deleteCartProductByBook(req.body.data);
         res.status(202).send("Delected the item from cart!");
     } catch (error) {
         res.status(400).send("Error deleting cart item!");
@@ -681,38 +703,38 @@ exports.postOrder = async (req, res, next) => {
     } catch (error) {
         console.log(error);
     }
-    //   try {
-    //     console.log("POSTING ORDER");
-    //     console.log("ORDER POSTED");
-    //     //console.log(req.body);
-    //     req.body.user
-    //       .populate("cart.items.productId")
-    //       .execPopulate()
-    //       .then((user) => {
-    //         console.log(user.cart.items);
-    //         // res.status(202).json(user.cart.items);
-    //         const products = user.cart.items.map((product) => {
-    //           return {
-    //             product: { ...product.productId._doc },
-    //             quantity: product.quantity,
-    //           };
-    //         });
-    //         const order = new Order({
-    //           products: products,
-    //           user: {
-    //             username: req.body.user.username,
-    //             userId: req.body.user._id,
-    //           },
-    //         });
-    //         console.log(order);
-    //         return order.save();
-    //       })
-    //       .catch((error) => {
-    //         console.log(error);
-    //       });
-    //   } catch (error) {
-    //     res.status(400).send("Error Getting cart item!");
-    //   }
+    /*   try {
+        console.log("POSTING ORDER");
+        console.log("ORDER POSTED");
+        //console.log(req.body);
+        req.body.user
+          .populate("cart.items.productId")
+          .execPopulate()
+          .then((user) => {
+            console.log(user.cart.items);
+            // res.status(202).json(user.cart.items);
+            const products = user.cart.items.map((product) => {
+              return {
+                product: { ...product.productId._doc },
+                quantity: product.quantity,
+              };
+            });
+            const order = new Order({
+              products: products,
+              user: {
+                username: req.body.user.username,
+                userId: req.body.user._id,
+              },
+            });
+            console.log(order);
+            return order.save();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } catch (error) {
+        res.status(400).send("Error Getting cart item!");
+      } */
 };
 
 exports.postOrderRazorpay = async (req, res) => {
@@ -746,21 +768,130 @@ exports.postOrderRazorpay = async (req, res) => {
     }
 };
 
+exports.postbeforePayment = async (req, res, next) => {
+    try {
+        // console.log(req.body.productId);
+        const productId = req.body.productId;
+        if (productId === undefined) {
+            const userToken = jwt.verify(
+                req.body.token,
+                process.env.SECRET_KEY
+            );
+            let user = await User.findById(userToken.userid);
+            if (user === null) {
+                user = await UserGoogle.findById(userToken.userid);
+            }
+            const cart = user.cart.items;
+            const products = cart.map((item, idx) => ({
+                product: item.productId,
+                quantity: item.quantity,
+            }));
+            /* products.forEach(async (item, idx) => {
+                console.log("FOR EACH :", item);
+                const productModel = await ProductModel.findById(item.product);
+                console.log("PRODUCTMODEL: ",productModel);
+                if (productModel.quantity < item.quantity) {
+                    console.log("LESS");
+                    res.status(400).json({
+                        status: "ERROR",
+                        msg: "Some of the Products IN Your cart are out of stock!",
+                    });
+                    break;
+                } else {
+                    productModel.quantity = productModel.quantity - item.quantity;
+                }
+                // console.log(productModel);
+                // const productRes = await productModel.save();
+            }); */
+            products.forEach(async (item, idx) => {
+                console.log("FOR EACH :", item);
+                const productModel = await ProductModel.findById(item.product);
+                productModel.quantity = productModel.quantity - item.quantity;
+                // console.log(productModel);
+                const productRes = await productModel.save();
+            });
+        } else {
+            const productToBeRemoved = await ProductModel.findById(productId);
+            if (productToBeRemoved.quantity <= 0) {
+                res.json({ status: "ERROR", msg: "PRODUCT OUT OF STOCK" });
+            } else {
+                productToBeRemoved.quantity = productToBeRemoved.quantity - 1;
+            }
+            console.log("productToBeRemoved: ", productToBeRemoved);
+            const productRes = await productToBeRemoved.save();
+        }
+        res.json({ status: "SUCCESS" });
+    } catch (error) {
+        console.log(error);
+        res.send(404).json({ status: "ERROR", msg: "PRODUCT OUT OF STOCK" });
+    }
+};
+
+exports.postOrderFailed = async (req, res, next) => {
+    try {
+        console.log("payment failed")
+        productId = req.body.productId;
+        if (productId === undefined) {
+            const userToken = jwt.verify(
+                req.body.token,
+                process.env.SECRET_KEY
+            );
+            let user = await User.findById(userToken.userid);
+            if (user === null) {
+                user = await UserGoogle.findById(userToken.userid);
+            }
+            const cart = user.cart.items;
+            const products = cart.map((item, idx) => ({
+                product: item.productId,
+                quantity: item.quantity,
+            }));
+            products.forEach(async (item, idx) => {
+                console.log("FOR EACH :", item);
+                const productModel = await ProductModel.findById(item.product);
+                productModel.quantity = productModel.quantity + item.quantity;
+                // console.log(productModel);
+                const productRes = await productModel.save();
+            });
+            res.send("SUCCESS");
+        } else {
+            console.log(productId);
+            const productToBeAdded = await ProductModel.findById(productId);
+            productToBeAdded.quantity = productToBeAdded.quantity + 1;
+            const productRes = await productToBeAdded.save();
+            res.send(productRes);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+    res.send("SUCCESS");
+};
+
 exports.postPaymentSuccessFull = async (req, res, next) => {
     try {
-        console.log("postPaymentSuccessFull: ", req.body);
+        // console.log("postPaymentSuccessFull: ", req.body);
         const userToken = jwt.verify(req.body.token, process.env.SECRET_KEY);
         let user = await User.findById(userToken.userid);
         if (user === null) {
             user = await UserGoogle.findById(userToken.userid);
         }
-
-        console.log("payment succesfull: ", user);
-        const cart = user.cart.items;
-        const products = cart.map((item, idx) => ({
-            product: item.productId,
-            quantity: item.quantity,
-        }));
+        
+        console.log("payment succesfull: ", user.username);
+        let products;
+        if (req.body.productId === undefined) {
+            const cart = user.cart.items;
+            products = cart.map((item, idx) => ({
+                product: item.productId,
+                quantity: item.quantity,
+            }));
+            user.cart.items = [];
+            const res = await user.save();
+        }
+        else {
+            console.log(req.body.productId);
+            products = await ProductModel.findById(req.body.productId);
+            products.quantity = 1;
+            products = [products];
+        }
         console.log("PRODUCTS ORDERED: ", products);
         const order = new Order({
             user: {
@@ -771,19 +902,13 @@ exports.postPaymentSuccessFull = async (req, res, next) => {
             address: req.body.location.Address,
             zipCode: req.body.location.ZIP,
             phoneNo: req.body.location.PhoneNumber,
-            city: req.body.location.City
+            city: req.body.location.City,
         });
         console.log("ORDER: ", order);
         const result = await order.save();
         // const allProducts = await ProductModel.find({});
         // console.log("All products: ", allProducts);
-        products.forEach(async (item, idx) => {
-            console.log("FOR EACH :", item);
-            const productModel = await ProductModel.findById(item.product);
-            productModel.quantity = productModel.quantity - item.quantity;
-            // console.log(productModel);
-            const productRes = await productModel.save();
-        });
+
         console.log("ORDER: ", order);
         res.send(result);
     } catch (error) {

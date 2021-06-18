@@ -5,22 +5,23 @@ const SeachBar = ({ onChange, changePage }) => {
     const [query, setquery] = useState("");
     return (
         <div>
-            <div class="wrap">
-                <div class="search">
+            <div className="wrap">
+                <div className="search">
                     <input
                         onChange={(e) => {
                             setquery(e.target.value);
+                            onChange(e.target.value);
                             changePage(1);
                         }}
                         type="text"
-                        class="searchTerm"
+                        className="searchTerm"
                         placeholder="What are you looking for?"
                     ></input>
-                    <button type="submit" class="searchButton" onClick={() => {
+                    <button type="submit" className="searchButton" onClick={() => {
                         onChange(query);
                         changePage(1);
                     }}>
-                        <i class="fa fa-search"></i>
+                        <i className="fa fa-search"></i>
                     </button>
                 </div>
             </div>

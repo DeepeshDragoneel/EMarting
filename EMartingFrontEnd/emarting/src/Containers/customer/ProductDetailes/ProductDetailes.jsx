@@ -19,7 +19,7 @@ const ProductDetailes = () => {
     const [userId, setuserId] = useState("");
     const [perRating, setperRating] = useState({});
     const id = productId.id;
-    const url = `http://localhost:8000/shop/detailes/${id}`;
+    const url = `${process.env.REACT_APP_REST_URL}shop/detailes/${id}`;
     const [query, setquery] = useState("");
     const [pageNumber, setpageNumber] = useState(1);
 
@@ -31,7 +31,7 @@ const ProductDetailes = () => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth",
+                url: `${process.env.REACT_APP_REST_URL}auth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -60,7 +60,7 @@ const ProductDetailes = () => {
                 setrating(temp.rating);
                 console.log(rating);
                 axios
-                    .get(`http://localhost:8000/getRatingPerStar/${temp._id}`)
+                    .get(`${process.env.REACT_APP_REST_URL}getRatingPerStar/${temp._id}`)
                     .then((res) => {
                         setperRating(res.data);
                         console.log(res);
@@ -101,7 +101,7 @@ const ProductDetailes = () => {
         console.log("IN func");
         const starPerRating = await axios({
             method: "GET",
-            url: "http://localhost:8000/getRatingPerStar",
+            url: `${process.env.REACT_APP_REST_URL}getRatingPerStar`,
         });
         return starPerRating;
     };
@@ -160,34 +160,50 @@ const ProductDetailes = () => {
                         </div>
                         <p>Product Id: {product._id}</p>
                         <h4>₹{product.price}</h4>
-                        <p
-                            style={{
-                                fontSize: "0.8rem",
-                                color: "rgba(109, 109, 109, 1)",
-                            }}
-                        >
-                            Only {product.quantity} Left
-                        </p>
-                        <p style={{}}>{product.desc}</p>
-                        <div
-                            style={{
-                                marginTop: "3rem",
-                                display: "flex",
-                                width: "100%",
-
-                                justifyContent: "space-evenly",
-                            }}
-                        >
-                            <button type="button" class="btn btn-outline-dark">
-                                Add To Cart 🛒
-                            </button>
-                            <button
-                                type="button"
-                                class="btn btn-outline-success"
+                        {product.quantity === 0 ? (
+                            <p
+                                style={{
+                                    fontSize: "1.2rem",
+                                    color: "rgb(79%, 14%, 16%)",
+                                }}
                             >
-                                Buy Now
-                            </button>
-                        </div>
+                                Item out of Stock!
+                            </p>
+                        ) : (
+                            <p
+                                style={{
+                                    fontSize: "0.8rem",
+                                    color: "rgba(109, 109, 109, 1)",
+                                }}
+                            >
+                                Only {product.quantity} Left
+                            </p>
+                        )}
+                        <p style={{}}>{product.desc}</p>
+                        {product.quantity === 0 ? null : (
+                            <div
+                                style={{
+                                    marginTop: "3rem",
+                                    display: "flex",
+                                    width: "100%",
+
+                                    justifyContent: "space-evenly",
+                                }}
+                            >
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-dark"
+                                >
+                                    Add To Cart 🛒
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-success"
+                                >
+                                    Buy Now
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

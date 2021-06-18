@@ -70,7 +70,7 @@ const PaymentForm = (props) => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth",
+                url: `${process.env.REACT_APP_REST_URL}auth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -97,7 +97,7 @@ const PaymentForm = (props) => {
                 const id = await checkAuthorization(token);
                 console.log("id: ", userId);
                 const result = await axios.get(
-                    `http://localhost:8000/cart/${id}`
+                    `${process.env.REACT_APP_REST_URL}cart/${id}`
                 );
                 console.log("Result.data: ", result.data);
                 setcartProducts(result.data);
@@ -125,7 +125,7 @@ const PaymentForm = (props) => {
         const id = await checkAuthorization(token);
         const result = await axios({
             method: "POST",
-            url: "http://localhost:8000/order/razorpay",
+            url: `${process.env.REACT_APP_REST_URL}order/razorpay`,
             headers: {
                 "content-type": "application/json",
                 accept: "application/json",
@@ -150,7 +150,7 @@ const PaymentForm = (props) => {
                 alert(response.razorpay_order_id);
                 alert(response.razorpay_signature); */
                 console.log(response);
-                props.paymentSuccess();
+                props.paymentSuccess(props.productId);
             },
             prefill: {
                 name: username,
@@ -165,16 +165,41 @@ const PaymentForm = (props) => {
         };
         var paymentObject = new window.Razorpay(options);
         paymentObject.on("payment.failed", function (response) {
-            alert("Payment failed redirecting to shop!");
             if (props.productId === undefined) {
                 paymentObject.close();
+                alert("Payment failed redirecting to shop!");
+                paymentFailed();
                 h.push("../shop");
             } else {
                 paymentObject.close();
+                paymentFailed();
+                alert("Payment failed redirecting to shop!");
                 h.push("../../shop");
             }
         });
         paymentObject.open();
+    };
+
+    const paymentFailed = async () => {
+        try {
+            const token = localStorage.getItem("JWT");
+            console.log("PAYMENT FAILED!");
+            const res = axios({
+                method: "POST",
+                url: `${process.env.REACT_APP_REST_URL}cart/orderFailed`,
+                headers: {
+                    "content-type": "application/json",
+                    accept: "application/json",
+                },
+                data: JSON.stringify({
+                    productId: props.productId,
+                    token: token,
+                }),
+            });
+            console.log(res);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const postOrder = async () => {
@@ -186,7 +211,7 @@ const PaymentForm = (props) => {
                 const id = await checkAuthorization(token);
                 const result = await axios({
                     method: "POST",
-                    url: "http://localhost:8000/cart/order",
+                    url: `${process.env.REACT_APP_REST_URL}cart/order`,
                     headers: {
                         "content-type": "application/json",
                         accept: "application/json",
@@ -214,7 +239,7 @@ const PaymentForm = (props) => {
                 setcartProducts(null);
             } else {
                 const result = await axios.get(
-                    `http://localhost:8000/shop/detailes/${productid}`
+                    `${process.env.REACT_APP_REST_URL}shop/detailes/${productid}`
                 );
                 console.log("Result.data: ", result.data);
                 const item = [
@@ -230,15 +255,20 @@ const PaymentForm = (props) => {
             console.log(error);
         }
     };
-    
+
+    const beforePayment = async () => {
+        props.beforePayment(props.productId);
+        displayRazorPay();
+    };
+
     const getProduct = async () => {
-        console.log("props.productId: ",props.productId);
+        console.log("props.productId: ", props.productId);
         if (props.productId === undefined) {
             getCartItems();
         } else {
             getSingleProduct(props.productId);
         }
-    }
+    };
 
     useEffect(() => {
         getProduct();
@@ -248,11 +278,7 @@ const PaymentForm = (props) => {
         <div>
             <Review items={cartProducts} settotalPrice={settotalPrice} />
             <Divider />
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={displayRazorPay}
-            >
+            <Button variant="contained" color="primary" onClick={beforePayment}>
                 Proceed to Pay
             </Button>
         </div>

@@ -9,7 +9,7 @@ const checkAuthorization = async (token) => {
     try {
         const result = await axios({
             method: "POST",
-            url: "http://localhost:8000/auth",
+            url: `${process.env.REACT_APP_REST_URL}auth`,
             headers: {
                 "content-type": "application/json",
                 accept: "application/json",

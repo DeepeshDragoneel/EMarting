@@ -70,7 +70,7 @@ const NavBar = (props) => {
             const id = await checkAuthorization(token);
             const result = await axios({
                 method: "POST",
-                url: `http://localhost:8000/deleteToken/${id}`,
+                url: `${process.env.REACT_APP_REST_URL}deleteToken/${id}`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -89,7 +89,7 @@ const NavBar = (props) => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth",
+                url: `${process.env.REACT_APP_REST_URL}auth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -129,7 +129,13 @@ const NavBar = (props) => {
     const LoginLogoutFeatuesDispatch = useDispatch();
     return (
         <div>
-            <Navbar color="light" light expand="md" style={{ padding: "10px" }}>
+            <Navbar
+                fixed="true"
+                color="light"
+                light
+                expand="md"
+                style={{ padding: "10px" }}
+            >
                 <a
                     className="navbar-brand"
                     href="/"
@@ -268,12 +274,32 @@ const NavBar = (props) => {
                                         position: "absolute",
                                     }}
                                 >
-                                    <DropdownItem>Orders</DropdownItem>
+                                    <DropdownItem
+                                        style={{
+                                            padding: "0",
+                                        }}
+                                    >
+                                        <NavLink
+                                            to="/orders"
+                                            style={{
+                                                textAlign: "center",
+                                                textDecoration: "none",
+                                                color: "black",
+                                                width: "100%",
+                                                margin:"none",
+                                                height: "100%",
+                                                padding: "0",
+                                            }}
+                                        >
+                                            <p style={{margin:"0"}}>Orders</p>
+                                        </NavLink>
+                                    </DropdownItem>
                                     <DropdownItem divider />
                                     <DropdownItem
                                         style={{
                                             fontWeight: "900",
                                             color: "red",
+                                            textAlign: "center",
                                         }}
                                         onClick={() => {
                                             removeUserToken();

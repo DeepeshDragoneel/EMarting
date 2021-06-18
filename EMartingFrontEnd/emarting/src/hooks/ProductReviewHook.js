@@ -16,7 +16,7 @@ export default function ProductReviewHook(productId, pageNumber) {
         seterror(false);
         axios({
             method: "GET",
-            url: "http://localhost:8000/review",
+            url: `${process.env.REACT_APP_REST_URL}review`,
             params: { productId:productId, pageNumber: pageNumber },
         })
             .then((res) => {

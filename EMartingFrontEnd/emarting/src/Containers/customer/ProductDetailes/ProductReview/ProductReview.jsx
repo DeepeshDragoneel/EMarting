@@ -26,7 +26,7 @@ const ProductReview = ({ closeBackDrop, product, userId }) => {
         console.log(review);
         const result = await axios({
             method: "POST",
-            url: "http://localhost:8000/comment",
+            url: `${process.env.REACT_APP_REST_URL}comment`,
             headers: {
                 "content-type": "application/json",
                 accept: "application/json",

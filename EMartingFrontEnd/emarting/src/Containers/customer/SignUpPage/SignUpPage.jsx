@@ -75,10 +75,10 @@ const SignUpPage = (props) => {
         console.log(result);
         console.log(token); 
         console.log(res);*/
-        try {
+        /* try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth/googleSignUp",
+                url: `${process.env.REACT_APP_REST_URL}auth/googleSignUp`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -102,7 +102,7 @@ const SignUpPage = (props) => {
             }
         } catch (error) {
             console.log(error);
-        }
+        } */
     };
     const googleFailure = () => {
         console.log("Error Connecting to Google");
@@ -112,7 +112,7 @@ const SignUpPage = (props) => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth/signUp",
+                url: `${process.env.REACT_APP_REST_URL}auth/signUp`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -260,7 +260,7 @@ const SignUpPage = (props) => {
                         <label for="floatingPassword">Password</label>
                     </div>
                     <GoogleLogin
-                        clientId="932722578967-3qbrmborj9dd6nevja1a2fqnksbjhedf.apps.googleusercontent.com"
+                        clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
                         render={(renderprops) => (
                             <Button
                                 className={classes.googleAuthButton}
@@ -292,21 +292,21 @@ const SignUpPage = (props) => {
                             Min length of UserName - 4
                         </li>
                     </ul>
-                    {errors===""?null:
-                    <p
-                        style={{
-                            color: "white",
-                            fontWeight: "700",
-                            marginTop: "1rem",
-                            padding: "1rem",
-                            background: "rgb(236,54,27)",
-                            background:
-                                "linear-gradient(0deg, rgba(236,54,27,1) 0%, rgba(230,59,13,1) 30%, rgba(244,2,2,1) 100%)",
-                        }}
-                    >
-                        {errors}
-                    </p>
-                    }
+                    {errors === "" ? null : (
+                        <p
+                            style={{
+                                color: "white",
+                                fontWeight: "700",
+                                marginTop: "1rem",
+                                padding: "1rem",
+                                background: "rgb(236,54,27)",
+                                background:
+                                    "linear-gradient(0deg, rgba(236,54,27,1) 0%, rgba(230,59,13,1) 30%, rgba(244,2,2,1) 100%)",
+                            }}
+                        >
+                            {errors}
+                        </p>
+                    )}
                     {verification === "" ? null : (
                         <p
                             style={{

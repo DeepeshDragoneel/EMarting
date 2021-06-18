@@ -120,7 +120,7 @@ const AddProduct = (props) => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth",
+                url: `${process.env.REACT_APP_REST_URL}auth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -144,7 +144,7 @@ const AddProduct = (props) => {
             const id = await checkAuthorization(token);
             const result = await axios({
                 method: "POST",
-                url: `http://localhost:8000/admin/addProduct/${id}`,
+                url: `${process.env.REACT_APP_REST_URL}admin/addProduct/${id}`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -185,7 +185,7 @@ const AddProduct = (props) => {
             const id = await checkAuthorization(token);
             const result = await axios({
                 method: "post",
-                url: `http://localhost:8000/admin/addProduct/${id}`,
+                url: `${process.env.REACT_APP_REST_URL}admin/addProduct/${id}`,
                 data: formData,
                 headers: {
                     "content-type": "multipart/form-data",

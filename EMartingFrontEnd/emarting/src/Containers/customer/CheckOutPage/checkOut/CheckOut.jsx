@@ -43,17 +43,44 @@ const CheckOut = (props) => {
         nextStep();
     };
 
-    const paymentSuccess = async () => {
+    const beforePayment = async (productId) => {
+        try {
+            const token = localStorage.getItem("JWT");
+            console.log(productId);
+            const result = await axios({
+                method: "POST",
+                url: `${process.env.REACT_APP_REST_URL}order/beforePayment`,
+                headers: {
+                    "content-type": "application/json",
+                    accept: "application/json",
+                },
+                data: JSON.stringify({ token: token, productId: productId }),
+            });
+            console.log(result.data);
+            if (result.data.status === "ERROR") {
+                alert(result.data.msg);
+            }
+        }
+        catch(error){
+            console.log(error);
+        }
+    }
+
+    const paymentSuccess = async (productId) => {
         console.log("Payment Successfull!");
         const token = localStorage.getItem("JWT");
         const result = await axios({
             method: "POST",
-            url: "http://localhost:8000/paymentSuccessFull",
+            url: `${process.env.REACT_APP_REST_URL}paymentSuccessFull`,
             headers: {
                 "content-type": "application/json",
                 accept: "application/json",
             },
-            data: JSON.stringify({ token: token, location: address }),
+            data: JSON.stringify({
+                token: token,
+                location: address,
+                productId: productId,
+            }),
         });
         console.log(result);
         nextStep();
@@ -74,10 +101,15 @@ const CheckOut = (props) => {
         ) : singleProduct !== "" ? (
             <PaymentForm
                 paymentSuccess={paymentSuccess}
+                beforePayment={beforePayment}
                 productId={singleProduct}
             />
         ) : (
-            <PaymentForm paymentSuccess={paymentSuccess} productId={null} />
+            <PaymentForm
+                paymentSuccess={paymentSuccess}
+                beforePayment={beforePayment}
+                productId={null}
+            />
         );
     return (
         <>

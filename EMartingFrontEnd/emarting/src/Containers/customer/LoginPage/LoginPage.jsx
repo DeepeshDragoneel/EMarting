@@ -66,7 +66,7 @@ const LoginPage = (props) => {
         try{
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth/login",
+                url: `${process.env.REACT_APP_REST_URL}auth/login`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -107,7 +107,7 @@ const LoginPage = (props) => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth/googleLogIn",
+                url: `${process.env.REACT_APP_REST_URL}auth/googleLogIn`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",

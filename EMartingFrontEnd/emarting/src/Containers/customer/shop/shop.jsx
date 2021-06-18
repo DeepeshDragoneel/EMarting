@@ -77,7 +77,7 @@ const Shop = () => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth",
+                url: `${process.env.REACT_APP_REST_URL}auth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -96,7 +96,7 @@ const Shop = () => {
     /* const getProducts = async () => {
         try {
             console.log("GETTING PRODUCTS");
-            const temp = await axios.get(`http://localhost:8000/shop/`, {
+            const temp = await axios.get(`${process.env.REACT_APP_REST_URL}shop/`, {
                 params: { query: "", pageNumber: 1 },
             });
             console.log(temp.data);
@@ -113,7 +113,7 @@ const Shop = () => {
             console.log(id);
             const result = await axios({
                 method: "post",
-                url: `http://localhost:8000/cart/${id}`,
+                url: `${process.env.REACT_APP_REST_URL}cart/${id}`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -164,6 +164,7 @@ const Shop = () => {
                             if (Products.length === idx + 1) {
                                 return (
                                     <Card
+                                        key={idx}
                                         className={classes.root}
                                         style={{
                                             margin: "2rem 0rem",
@@ -220,12 +221,13 @@ const Shop = () => {
                                                 </CardContent>
                                             </CardActionArea>
                                         </NavLink>
+                                        {item.quantity === 0 ? null : (
                                         <CardActions
                                             style={{
                                                 display: "flex",
                                                 justifyContent: "space-evenly",
                                             }}
-                                        >
+                                            >
                                             <button
                                                 type="button"
                                                 class="btn btn-outline-dark"
@@ -256,11 +258,13 @@ const Shop = () => {
                                                 Buy Now
                                             </button>
                                         </CardActions>
+                                        )}
                                     </Card>
                                 );
                             } else {
                                 return (
                                     <Card
+                                        key={idx}
                                         className={classes.root}
                                         style={{
                                             margin: "2rem 0rem",
@@ -316,42 +320,55 @@ const Shop = () => {
                                                 </CardContent>
                                             </CardActionArea>
                                         </NavLink>
-                                        <CardActions
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-evenly",
-                                            }}
-                                        >
-                                            <button
-                                                type="button"
-                                                class="btn btn-outline-dark"
-                                                onClick={() => {
-                                                    if (userLoggedIn === true) {
-                                                        addToCartProduct(item);
-                                                        cartNotificationDispatch(
-                                                            incrementCartNotification()
-                                                        );
-                                                    } else {
-                                                        routeChange();
-                                                    }
+                                        {item.quantity === 0 ? null : (
+                                            <CardActions
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent:
+                                                        "space-evenly",
                                                 }}
                                             >
-                                                Add To Cart 🛒
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="btn btn-outline-success"
-                                                onClick={() => {
-                                                    if (userLoggedIn === true) {
-                                                        orderSingleItem(item);
-                                                    } else {
-                                                        routeChange();
-                                                    }
-                                                }}
-                                            >
-                                                Buy Now
-                                            </button>
-                                        </CardActions>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-outline-dark"
+                                                    onClick={() => {
+                                                        if (
+                                                            userLoggedIn ===
+                                                            true
+                                                        ) {
+                                                            addToCartProduct(
+                                                                item
+                                                            );
+                                                            cartNotificationDispatch(
+                                                                incrementCartNotification()
+                                                            );
+                                                        } else {
+                                                            routeChange();
+                                                        }
+                                                    }}
+                                                >
+                                                    Add To Cart 🛒
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-outline-success"
+                                                    onClick={() => {
+                                                        if (
+                                                            userLoggedIn ===
+                                                            true
+                                                        ) {
+                                                            orderSingleItem(
+                                                                item
+                                                            );
+                                                        } else {
+                                                            routeChange();
+                                                        }
+                                                    }}
+                                                >
+                                                    Buy Now
+                                                </button>
+                                            </CardActions>
+                                        )}
                                     </Card>
                                 );
                             }

@@ -45,7 +45,7 @@ const Cart = () => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth",
+                url: `${process.env.REACT_APP_REST_URL}auth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -65,7 +65,7 @@ const Cart = () => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/UserAuth",
+                url: `${process.env.REACT_APP_REST_URL}UserAuth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -85,7 +85,7 @@ const Cart = () => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/cart/order",
+                url: `${process.env.REACT_APP_REST_URL}cart/order`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -103,7 +103,7 @@ const Cart = () => {
             const id = await checkAuthorization(token);
             const result = await axios({
                 method: "POST",
-                url: `http://localhost:8000/cart/delete/${id}`,
+                url: `${process.env.REACT_APP_REST_URL}cart/delete/${id}`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -128,7 +128,7 @@ const Cart = () => {
                 const id = await checkAuthorization(token);
                 console.log("useeffect: ", id);
                 const result = await axios.get(
-                    `http://localhost:8000/cart/${id}`
+                    `${process.env.REACT_APP_REST_URL}cart/${id}`
                 );
                 console.log(result.data);
                 setcartProducts(result.data);
@@ -149,6 +149,9 @@ const Cart = () => {
     useEffect(() => {
         getCartItems();
     }, [deleteOptionClicked]);
+    useEffect(() => {
+        console.log("cartproduct: ", cartProducts);
+    }, [cartProducts])
     return (
         <div>
             <div

@@ -108,7 +108,7 @@ const EditProduct = (props) => {
 
     const getProductInfo = (editProductInfo) => {
         axios
-            .get(`http://localhost:8000/admin/editProduct/${editProductInfo}`)
+            .get(`${process.env.REACT_APP_REST_URL}admin/editProduct/${editProductInfo}`)
             .then((res) => {
                 temp = res.data;
                 console.log(temp);
@@ -138,7 +138,7 @@ const EditProduct = (props) => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/auth",
+                url: `${process.env.REACT_APP_REST_URL}auth`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -161,7 +161,7 @@ const EditProduct = (props) => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/admin/editProduct",
+                url: `${process.env.REACT_APP_REST_URL}admin/editProduct`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
@@ -195,7 +195,7 @@ const EditProduct = (props) => {
             const id = await checkAuthorization(token);
             const result = await axios({
                 method: "post",
-                url: `http://localhost:8000/admin/editProduct`,
+                url: `${process.env.REACT_APP_REST_URL}admin/editProduct`,
                 data: data,
                 headers: {
                     "content-type": "multipart/form-data",

@@ -47,9 +47,13 @@ router.get("/shop", productController.getProducts);
 
 router.get("/shop/detailes/:id", productController.getProductInfo);
 
+router.post("/order/beforePayment", productController.postbeforePayment);
+
 router.post("/cart/delete/:id", productController.deleteCartItem);
 
 router.post("/cart/order", productController.postOrder);
+
+router.post("/cart/orderFailed", productController.postOrderFailed);
 
 router.get("/callback", productController.getCallBack);
 

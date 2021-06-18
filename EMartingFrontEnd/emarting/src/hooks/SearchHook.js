@@ -1,7 +1,12 @@
-import {useEffect, useState} from 'react'
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-export default function SearchHook(query, pageNumber, setpageNumber, deleteProduct) {
+export default function SearchHook(
+    query,
+    pageNumber,
+    setpageNumber,
+    deleteProduct
+) {
     const [loading, setloading] = useState(true);
     const [error, seterror] = useState(false);
     const [Products, setProducts] = useState([]);
@@ -11,19 +16,21 @@ export default function SearchHook(query, pageNumber, setpageNumber, deleteProdu
         console.log("CHANGING PRODUCTS TO []");
         setProducts([]);
     }, [query, deleteProduct]);
-    
+
     /* useEffect(() => {
         console.log("CHANGING Delecte products TO []");
         setProducts([]);
     }, [deleteProduct]); */
 
     useEffect(() => {
+        let cancel;
         setloading(true);
         seterror(false);
         axios({
             method: "GET",
-            url: "http://localhost:8000/shop",
+            url: `${process.env.REACT_APP_REST_URL}shop`,
             params: { query: query, pageNumber: pageNumber },
+            cancelToken: new axios.CancelToken((c) => (cancel = c)),
         })
             .then((res) => {
                 console.log("Hook: ", res.data.products);
@@ -34,9 +41,14 @@ export default function SearchHook(query, pageNumber, setpageNumber, deleteProdu
                 sethasMore(res.data.count);
                 setloading(false);
             })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                if (axios.isCancel(error)) {
+                    return;
+                }
+                console.log(error);
+            });
+        return () => cancel();
     }, [query, pageNumber]);
 
     return { loading, error, hasMore, Products };
 }
-

@@ -68,7 +68,7 @@ const AdminShop = () => {
     };
     /* const getProducts = async () => {
         try {
-            const temp = await axios.get("http://localhost:8000/shop");
+            const temp = await axios.get("${process.env.REACT_APP_REST_URL}shop");
             console.log(temp.data);
             setProducts(temp.data);
         } catch (error) {
@@ -80,7 +80,7 @@ const AdminShop = () => {
         try {
             const result = await axios({
                 method: "POST",
-                url: "http://localhost:8000/admin/editProduct/delete",
+                url: `${process.env.REACT_APP_REST_URL}admin/editProduct/delete`,
                 headers: {
                     "content-type": "application/json",
                     accept: "application/json",
