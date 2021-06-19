@@ -1,6 +1,7 @@
 import React from 'react';
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import { successIcon } from "../../../../../assets/successIcon.svg";
+import { NavLink, useHistory } from "react-router-dom";
 import "./ConformationPage.scss";
 
 const ConformationPage = () => {
@@ -20,6 +21,7 @@ const ConformationPage = () => {
         >
           Payment Successful
         </h2>
+        <NavLink to="../orders">Check your Orders!</NavLink>
       </>
     );
 }

@@ -157,7 +157,7 @@ const Shop = () => {
                         alignContent: "space-between",
                     }}
                 >
-                    {Products.length === 0 && Products !== undefined ? (
+                    {Products.length === 0 && Products === undefined ? (
                         <h1>No products Found</h1>
                     ) : (
                         Products.map((item, idx) => {

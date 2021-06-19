@@ -77,7 +77,7 @@ UserSchema.methods.authTokenGeneration = async function () {
             {
                 userid: this._id.toString(),
                 email: this.email.toString(),
-                username: this.email.toString(),
+                username: this.username.toString(),
                 password: this.password.toString(),
             },
             process.env.SECRET_KEY

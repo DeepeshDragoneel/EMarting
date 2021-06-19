@@ -829,7 +829,7 @@ exports.postbeforePayment = async (req, res, next) => {
 
 exports.postOrderFailed = async (req, res, next) => {
     try {
-        console.log("payment failed")
+        console.log("payment failed");
         productId = req.body.productId;
         if (productId === undefined) {
             const userToken = jwt.verify(
@@ -874,7 +874,7 @@ exports.postPaymentSuccessFull = async (req, res, next) => {
         if (user === null) {
             user = await UserGoogle.findById(userToken.userid);
         }
-        
+
         console.log("payment succesfull: ", user.username);
         let products;
         if (req.body.productId === undefined) {
@@ -885,8 +885,7 @@ exports.postPaymentSuccessFull = async (req, res, next) => {
             }));
             user.cart.items = [];
             const res = await user.save();
-        }
-        else {
+        } else {
             console.log(req.body.productId);
             products = await ProductModel.findById(req.body.productId);
             products.quantity = 1;
@@ -895,7 +894,7 @@ exports.postPaymentSuccessFull = async (req, res, next) => {
         console.log("PRODUCTS ORDERED: ", products);
         const order = new Order({
             user: {
-                userId: user.userId,
+                userId: user._id,
                 username: user.username,
             },
             products: products,
@@ -914,6 +913,22 @@ exports.postPaymentSuccessFull = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         res.send("ERROR");
+    }
+};
+
+exports.getOrders = async (req, res, next) => {
+    try {
+        // console.log("Hello: ", req.query.token);
+        const { userid, username } = jwt.verify(
+            req.query.token,
+            process.env.SECRET_KEY
+        );
+        // console.log(userid, username);
+        const orders = await Order.find({ "user.username": username });
+        // console.log(orders);
+        res.send(orders);
+    } catch (error) {
+        console.log(error);
     }
 };
 
