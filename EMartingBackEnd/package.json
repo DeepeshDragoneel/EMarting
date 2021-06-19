@@ -23,6 +23,7 @@
     "express-session": "^1.17.1",
     "express-validator": "^6.11.1",
     "formidable": "^1.2.2",
+    "google-auth-library": "^7.1.2",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.5",
     "mongoose": "^5.12.2",

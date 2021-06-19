@@ -6,6 +6,9 @@ const nodemailer = require("nodemailer");
 const sendGridTransport = require("nodemailer-sendgrid-transport");
 const sgMail = require("@sendgrid/mail");
 const validator = require("validator");
+const { OAuth2Client } = require("google-auth-library");
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const transporter = nodemailer.createTransport(
     sendGridTransport({
@@ -44,11 +47,19 @@ exports.checkAuthorization = async (req, res, next) => {
 };
 
 exports.postGoogleLoginIn = async (req, res, next) => {
-    // console.log(req.body.data);
     try {
-        const userGoogle = await UserGoogle.findOne({ email: req.body.data.profileObj.email })
-        if (userGoogle == undefined) {
-            return res.send("error"); 
+        // console.log(req.body.data.tokenId);
+        const ticket = await client.verifyIdToken({
+            idToken: req.body.data.tokenId,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        // console.log(payload);
+        const userGoogle = await UserGoogle.findOne({ username: payload.name });
+        if (userGoogle === null || userGoogle === undefined) {
+            console.log("USER DOESN'T EXIST!");
+            res.send("error");
+            return;
         }
         console.log("userGoogle: ",userGoogle);
         const token = jwt.sign(
@@ -80,9 +91,23 @@ exports.postGoogleLoginIn = async (req, res, next) => {
 
 exports.postGoogleSignUp = async (req, res, next) => {
     try {
+        // console.log(req.body.data.tokenId);
+        const ticket = await client.verifyIdToken({
+            idToken: req.body.data.tokenId,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        console.log(payload);
+        const ug = await UserGoogle.findOne({ username: payload.name });
+        console.log("userGoogle: ", ug);
+        if (ug !== null) {
+            console.log("USER ALREADY EXISTS!");
+            res.send("error");
+            return;
+        }
         const userGoogle = new UserGoogle({
-            username: req.body.data.profileObj.name.toString(),
-            email: req.body.data.profileObj.email.toString(),
+            username: payload.name.toString(),
+            email: payload.email.toString(),
             googleId: req.body.data.profileObj.googleId.toString(),
         });
         const token = jwt.sign(

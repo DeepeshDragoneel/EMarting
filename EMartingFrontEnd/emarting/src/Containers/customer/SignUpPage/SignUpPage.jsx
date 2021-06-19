@@ -70,12 +70,13 @@ const SignUpPage = (props) => {
     };
 
     const googleSuccess = async (res) => {
-        /* const result = res?.profileObj;
+        console.log(res);
+        const result = res?.profileObj;
         const token = res?.tokenId;
         console.log(result);
         console.log(token); 
-        console.log(res);*/
-        /* try {
+        console.log(res);
+        try {
             const result = await axios({
                 method: "POST",
                 url: `${process.env.REACT_APP_REST_URL}auth/googleSignUp`,
@@ -102,7 +103,7 @@ const SignUpPage = (props) => {
             }
         } catch (error) {
             console.log(error);
-        } */
+        }
     };
     const googleFailure = () => {
         console.log("Error Connecting to Google");
