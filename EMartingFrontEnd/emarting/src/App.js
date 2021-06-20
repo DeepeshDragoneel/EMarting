@@ -41,11 +41,11 @@ function App() {
                   path="/shop/detailes/:id"
                   component={ProductDetailes}
               ></Route>
-              <Route exact path="/EMarting" component={HomePage}></Route>
               <Route exact path="/cart" component={Cart}></Route>
               <Route exact path="/admin/shop" component={AdminProducts}></Route>
               <Route exact path="/order/:msg?" component={CheckOut}></Route>
               <Route exact path="/" component={HomePage}></Route>
+              <Route path="/EMarting" component={HomePage}></Route>
               {!userLoggedIn ? (
                   <>
                       <Route exact path="/login" component={LoginPage}></Route>
