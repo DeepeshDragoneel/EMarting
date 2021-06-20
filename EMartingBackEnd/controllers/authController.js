@@ -241,7 +241,7 @@ exports.verifySignUp = async (req, res, next) => {
             console.log("user SingedUp with ID: ", userToken.userid);
             await user.save();
             res.send(
-                `<div><a href=${REACT_APP_BASE_URL}login>Login with you Credentials!</a></div>`
+                `<div><a href=${BASE_URL}login>Login with you Credentials!</a></div>`
             );
         }
         catch(error){
