@@ -625,7 +625,7 @@ exports.postCallback = async (req, res) => {
                         //     .catch(() => console.log("Unable to update"));
                         // }
         
-                        // res.redirect(`http://localhost:3000/status/${result.ORDERID}`);
+                        // res.redirect(`REACT_APP_BASE_URLstatus/${result.ORDERID}`);
                         // res.json(response);
                         console.log("Response: ", response);
                         let response_temp = JSON.parse(response);
@@ -945,7 +945,7 @@ exports.orderVerification = (req, res) => {
         res.json({
             status: "OK",
         });
-        /* res.redirect("http://localhost:3000/order?msg=SUCCESS"); */
+        /* res.redirect("REACT_APP_BASE_URLorder?msg=SUCCESS"); */
         /* res.setHeader("Location", "/"); */
     } else {
         res.json({
