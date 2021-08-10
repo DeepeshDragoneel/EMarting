@@ -149,9 +149,6 @@ const Cart = () => {
     useEffect(() => {
         getCartItems();
     }, [deleteOptionClicked]);
-    useEffect(() => {
-        console.log("cartproduct: ", cartProducts);
-    }, [cartProducts])
     return (
         <div>
             <div
@@ -202,7 +199,7 @@ const Cart = () => {
                                                     <div className="cartProductDetailes">
                                                         <div className="cartProductTitlePrice">
                                                             <Link
-                                                                to={`/shop/detailes/${ele.productId.id}`}
+                                                                to={`/shop/detailes/${ele.productId._id}`}
                                                                 className="cartProductTitleLink"
                                                             >
                                                                 <h4 className="cartProductTitle">
