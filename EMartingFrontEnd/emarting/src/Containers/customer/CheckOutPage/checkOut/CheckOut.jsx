@@ -23,7 +23,7 @@ const steps = ["Shipping Address", "Payment Details"];
 
 const CheckOut = (props) => {
     const [singleProduct, setsingleProduct] = useState(
-        window.location.href.split("/")[5]
+        window.location.href.split("/")[6]
     );
     const [activeStep, setactiveStep] = useState(0);
 
